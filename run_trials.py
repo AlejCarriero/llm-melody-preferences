@@ -110,14 +110,18 @@ def parse_choice(reply):
 
 
 def ask_anthropic(client, model, prompt, max_tokens):
-    """One fresh conversation: no system prompt, no history, one question."""
+    """
+    One fresh conversation: no system prompt, no history, one question.
+    Returns (reply text, stop reason). The stop reason says why the reply ended,
+    e.g. "end_turn" (finished), "max_tokens" (cut off), "refusal" (declined).
+    """
     response = client.messages.create(
         model=model,
         max_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}],
     )
     pieces = [block.text for block in response.content if block.type == "text"]
-    return "".join(pieces)
+    return "".join(pieces), response.stop_reason
 
 
 def ask_openrouter(api_key, model, prompt, max_tokens):
@@ -143,7 +147,8 @@ def ask_openrouter(api_key, model, prompt, max_tokens):
         data = response.json()
         if "choices" not in data:
             raise RuntimeError(f"unexpected reply: {data}")
-        return data["choices"][0]["message"].get("content") or ""
+        choice = data["choices"][0]
+        return choice["message"].get("content") or "", choice.get("finish_reason")
     raise RuntimeError(f"still refused after 5 attempts (status {response.status_code}); "
                        f"probably the rate limit")
 
@@ -241,14 +246,15 @@ def main():
     def run_one(trial):
         if failures[0] >= 3:
             return  # something is wrong (often the daily limit); stop asking
+        stop_reason = None
         try:
             if args.dry_run:
                 with write_lock:
                     reply = fake_answer(trial, stimuli_by_id, rng)
             elif args.provider == "anthropic":
-                reply = ask_anthropic(client, model, trial["prompt"], max_tokens)
+                reply, stop_reason = ask_anthropic(client, model, trial["prompt"], max_tokens)
             else:
-                reply = ask_openrouter(openrouter_key, model, trial["prompt"], max_tokens)
+                reply, stop_reason = ask_openrouter(openrouter_key, model, trial["prompt"], max_tokens)
             if args.delay > 0:
                 time.sleep(args.delay)
         except Exception as error:  # leave the trial undone; it will be retried next run
@@ -260,6 +266,7 @@ def main():
             "trial_id": trial["trial_id"],
             "mode": trial["mode"],
             "reply": reply,
+            "stop_reason": stop_reason,
             "model": model,
             "provider": "simulated" if args.dry_run else args.provider,
             "time": time.strftime("%Y-%m-%d %H:%M:%S"),
