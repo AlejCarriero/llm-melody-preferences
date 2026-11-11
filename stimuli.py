@@ -171,7 +171,8 @@ def main():
                 "features": describe(notes),
             })
 
-    with open("stimuli.json", "w") as handle:
+    # newline="\n" so Windows writes the same bytes as the committed file
+    with open("stimuli.json", "w", newline="\n") as handle:
         json.dump(stimuli, handle, indent=2)
 
     print(f"Saved {len(stimuli)} melodies to stimuli.json\n")
