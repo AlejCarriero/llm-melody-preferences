@@ -1,0 +1,470 @@
+[
+  {
+    "id": 0,
+    "family": "repeat",
+    "positions": [
+      1,
+      5,
+      1,
+      1,
+      5,
+      1,
+      1,
+      5,
+      1,
+      1,
+      5,
+      1
+    ],
+    "text": "D4 C5 D4 D4 C5 D4 D4 C5 D4 D4 C5 D4",
+    "features": {
+      "pitch_entropy": 0.918,
+      "mean_interval": 2.909,
+      "bigram_novelty": 0.273,
+      "mean_surprisal": 2.295,
+      "learning_progress": 0.803
+    }
+  },
+  {
+    "id": 1,
+    "family": "repeat",
+    "positions": [
+      3,
+      6,
+      7,
+      3,
+      6,
+      7,
+      3,
+      6,
+      7,
+      3,
+      6,
+      7
+    ],
+    "text": "G4 D5 E5 G4 D5 E5 G4 D5 E5 G4 D5 E5",
+    "features": {
+      "pitch_entropy": 1.585,
+      "mean_interval": 2.545,
+      "bigram_novelty": 0.273,
+      "mean_surprisal": 2.149,
+      "learning_progress": 0.951
+    }
+  },
+  {
+    "id": 2,
+    "family": "repeat",
+    "positions": [
+      7,
+      3,
+      0,
+      7,
+      3,
+      0,
+      7,
+      3,
+      0,
+      7,
+      3,
+      0
+    ],
+    "text": "E5 G4 C4 E5 G4 C4 E5 G4 C4 E5 G4 C4",
+    "features": {
+      "pitch_entropy": 1.585,
+      "mean_interval": 4.455,
+      "bigram_novelty": 0.273,
+      "mean_surprisal": 2.149,
+      "learning_progress": 0.951
+    }
+  },
+  {
+    "id": 3,
+    "family": "scale_run",
+    "positions": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      7,
+      6,
+      5,
+      4,
+      3,
+      2
+    ],
+    "text": "E4 G4 A4 C5 D5 E5 E5 D5 C5 A4 G4 E4",
+    "features": {
+      "pitch_entropy": 2.585,
+      "mean_interval": 0.909,
+      "bigram_novelty": 1.0,
+      "mean_surprisal": 3.077,
+      "learning_progress": -0.142
+    }
+  },
+  {
+    "id": 4,
+    "family": "scale_run",
+    "positions": [
+      6,
+      5,
+      4,
+      3,
+      2,
+      1,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "text": "D5 C5 A4 G4 E4 D4 D4 E4 G4 A4 C5 D5",
+    "features": {
+      "pitch_entropy": 2.585,
+      "mean_interval": 0.909,
+      "bigram_novelty": 1.0,
+      "mean_surprisal": 3.077,
+      "learning_progress": -0.142
+    }
+  },
+  {
+    "id": 5,
+    "family": "scale_run",
+    "positions": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      6,
+      5,
+      4,
+      3,
+      2,
+      1
+    ],
+    "text": "D4 E4 G4 A4 C5 D5 D5 C5 A4 G4 E4 D4",
+    "features": {
+      "pitch_entropy": 2.585,
+      "mean_interval": 0.909,
+      "bigram_novelty": 1.0,
+      "mean_surprisal": 3.077,
+      "learning_progress": -0.142
+    }
+  },
+  {
+    "id": 6,
+    "family": "motif_variation",
+    "positions": [
+      3,
+      5,
+      4,
+      3,
+      4,
+      6,
+      5,
+      4,
+      3,
+      5,
+      4,
+      3
+    ],
+    "text": "G4 C5 A4 G4 A4 D5 C5 A4 G4 C5 A4 G4",
+    "features": {
+      "pitch_entropy": 1.855,
+      "mean_interval": 1.273,
+      "bigram_novelty": 0.545,
+      "mean_surprisal": 2.615,
+      "learning_progress": 0.83
+    }
+  },
+  {
+    "id": 7,
+    "family": "motif_variation",
+    "positions": [
+      2,
+      4,
+      3,
+      4,
+      3,
+      5,
+      4,
+      5,
+      2,
+      4,
+      3,
+      2
+    ],
+    "text": "E4 A4 G4 A4 G4 C5 A4 C5 E4 A4 G4 E4",
+    "features": {
+      "pitch_entropy": 1.959,
+      "mean_interval": 1.455,
+      "bigram_novelty": 0.727,
+      "mean_surprisal": 2.836,
+      "learning_progress": 0.058
+    }
+  },
+  {
+    "id": 8,
+    "family": "motif_variation",
+    "positions": [
+      2,
+      3,
+      3,
+      2,
+      3,
+      4,
+      4,
+      3,
+      2,
+      3,
+      2,
+      2
+    ],
+    "text": "E4 G4 G4 E4 G4 A4 A4 G4 E4 G4 E4 E4",
+    "features": {
+      "pitch_entropy": 1.483,
+      "mean_interval": 0.727,
+      "bigram_novelty": 0.636,
+      "mean_surprisal": 2.772,
+      "learning_progress": 0.295
+    }
+  },
+  {
+    "id": 9,
+    "family": "motif_surprise",
+    "positions": [
+      2,
+      3,
+      4,
+      2,
+      3,
+      4,
+      2,
+      3,
+      4,
+      7,
+      4,
+      5
+    ],
+    "text": "E4 G4 A4 E4 G4 A4 E4 G4 A4 E5 A4 C5",
+    "features": {
+      "pitch_entropy": 2.126,
+      "mean_interval": 1.545,
+      "bigram_novelty": 0.545,
+      "mean_surprisal": 2.615,
+      "learning_progress": 0.097
+    }
+  },
+  {
+    "id": 10,
+    "family": "motif_surprise",
+    "positions": [
+      1,
+      2,
+      3,
+      1,
+      2,
+      3,
+      1,
+      2,
+      3,
+      7,
+      5,
+      4
+    ],
+    "text": "D4 E4 G4 D4 E4 G4 D4 E4 G4 E5 C5 A4",
+    "features": {
+      "pitch_entropy": 2.396,
+      "mean_interval": 1.545,
+      "bigram_novelty": 0.545,
+      "mean_surprisal": 2.573,
+      "learning_progress": 0.174
+    }
+  },
+  {
+    "id": 11,
+    "family": "motif_surprise",
+    "positions": [
+      0,
+      1,
+      2,
+      0,
+      1,
+      2,
+      0,
+      1,
+      2,
+      7,
+      4,
+      3
+    ],
+    "text": "C4 D4 E4 C4 D4 E4 C4 D4 E4 E5 A4 G4",
+    "features": {
+      "pitch_entropy": 2.396,
+      "mean_interval": 1.727,
+      "bigram_novelty": 0.545,
+      "mean_surprisal": 2.573,
+      "learning_progress": 0.174
+    }
+  },
+  {
+    "id": 12,
+    "family": "random_walk",
+    "positions": [
+      5,
+      6,
+      4,
+      5,
+      6,
+      7,
+      7,
+      5,
+      6,
+      7,
+      7,
+      7
+    ],
+    "text": "C5 D5 A4 C5 D5 E5 E5 C5 D5 E5 E5 E5",
+    "features": {
+      "pitch_entropy": 1.825,
+      "mean_interval": 0.909,
+      "bigram_novelty": 0.545,
+      "mean_surprisal": 2.615,
+      "learning_progress": 0.464
+    }
+  },
+  {
+    "id": 13,
+    "family": "random_walk",
+    "positions": [
+      5,
+      6,
+      5,
+      6,
+      7,
+      7,
+      7,
+      7,
+      5,
+      6,
+      5,
+      4
+    ],
+    "text": "C5 D5 C5 D5 E5 E5 E5 E5 C5 D5 C5 A4",
+    "features": {
+      "pitch_entropy": 1.855,
+      "mean_interval": 0.818,
+      "bigram_novelty": 0.545,
+      "mean_surprisal": 2.657,
+      "learning_progress": 0.387
+    }
+  },
+  {
+    "id": 14,
+    "family": "random_walk",
+    "positions": [
+      2,
+      4,
+      5,
+      7,
+      5,
+      7,
+      7,
+      7,
+      7,
+      6,
+      7,
+      6
+    ],
+    "text": "E4 A4 C5 E5 C5 E5 E5 E5 E5 D5 E5 D5",
+    "features": {
+      "pitch_entropy": 1.959,
+      "mean_interval": 1.091,
+      "bigram_novelty": 0.636,
+      "mean_surprisal": 2.802,
+      "learning_progress": 0.059
+    }
+  },
+  {
+    "id": 15,
+    "family": "random",
+    "positions": [
+      1,
+      7,
+      7,
+      4,
+      6,
+      4,
+      7,
+      6,
+      6,
+      3,
+      4,
+      4
+    ],
+    "text": "D4 E5 E5 A4 D5 A4 E5 D5 D5 G4 A4 A4",
+    "features": {
+      "pitch_entropy": 2.126,
+      "mean_interval": 1.909,
+      "bigram_novelty": 1.0,
+      "mean_surprisal": 3.134,
+      "learning_progress": -0.184
+    }
+  },
+  {
+    "id": 16,
+    "family": "random",
+    "positions": [
+      0,
+      0,
+      2,
+      7,
+      7,
+      5,
+      3,
+      4,
+      7,
+      7,
+      7,
+      6
+    ],
+    "text": "C4 C4 E4 E5 E5 C5 G4 A4 E5 E5 E5 D5",
+    "features": {
+      "pitch_entropy": 2.451,
+      "mean_interval": 1.455,
+      "bigram_novelty": 0.818,
+      "mean_surprisal": 2.92,
+      "learning_progress": 0.271
+    }
+  },
+  {
+    "id": 17,
+    "family": "random",
+    "positions": [
+      0,
+      4,
+      5,
+      7,
+      1,
+      7,
+      4,
+      7,
+      2,
+      6,
+      7,
+      1
+    ],
+    "text": "C4 A4 C5 E5 D4 E5 A4 E5 E4 D5 E5 D4",
+    "features": {
+      "pitch_entropy": 2.585,
+      "mean_interval": 3.727,
+      "bigram_novelty": 0.909,
+      "mean_surprisal": 3.011,
+      "learning_progress": -0.02
+    }
+  }
+]

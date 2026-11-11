@@ -1,0 +1,14 @@
+# secrets: never commit keys
+.env
+*.key
+
+# Python clutter
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# generated files you can always recreate
+audio/
+results/dryrun.jsonl
+reports/dryrun_*
