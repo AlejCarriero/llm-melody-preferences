@@ -228,6 +228,12 @@ def main():
             if not openrouter_key:
                 print("Set OPENROUTER_API_KEY first.")
                 return
+            # Check HTTPS certificates against the operating system's trusted list
+            # (as the anthropic package does), not only requests' built-in list.
+            # Needed when antivirus software scans HTTPS traffic with its own
+            # certificate. Verification stays on.
+            import truststore
+            truststore.inject_into_ssl()
 
     # Short replies are all we need. Models reached through OpenRouter get more room,
     # because some of them think out loud before answering and would otherwise be cut off.

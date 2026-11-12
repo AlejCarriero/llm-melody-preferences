@@ -1,3 +1,4 @@
 anthropic
 numpy
 requests
+truststore
