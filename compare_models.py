@@ -8,6 +8,7 @@ preferences are, as a rank correlation:
 Run:  python compare_models.py      (after running analyse.py for two or more models)
 """
 
+import argparse
 import csv
 import glob
 import os
@@ -18,8 +19,13 @@ from analyse import spearman
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--design", choices=["v1", "v2"], default="v2")
+    args = parser.parse_args()
+    folder = "reports" if args.design == "v1" else os.path.join("reports", "v2")
+
     scores = {}
-    for path in sorted(glob.glob(os.path.join("reports", "*_ranking.csv"))):
+    for path in sorted(glob.glob(os.path.join(folder, "*_ranking.csv"))):
         name = os.path.basename(path).replace("_ranking.csv", "")
         if name == "dryrun":
             continue

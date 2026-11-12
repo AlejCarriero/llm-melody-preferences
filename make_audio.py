@@ -55,23 +55,32 @@ def tone(note_name):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=None)
+    parser.add_argument("--design", choices=["v1", "v2"], default="v2")
     args = parser.parse_args()
 
-    with open("stimuli.json") as handle:
+    if args.design == "v1":
+        stimuli_file = "stimuli.json"
+        reports_folder = "reports"
+        folder = "audio"
+    else:
+        stimuli_file = "stimuli_v2.json"
+        reports_folder = os.path.join("reports", "v2")
+        folder = os.path.join("audio", "v2")
+
+    with open(stimuli_file) as handle:
         stimuli = json.load(handle)
 
     rank_of = {}
-    folder = "audio"
     if args.model:
         safe_name = args.model.replace("/", "_").replace(":", "_")
-        ranking_path = os.path.join("reports", safe_name + "_ranking.csv")
+        ranking_path = os.path.join(reports_folder, safe_name + "_ranking.csv")
         if not os.path.exists(ranking_path):
-            print(f"No {ranking_path} yet. Run analyse.py --model {args.model} first.")
+            print(f"No {ranking_path} yet. Run the analysis for {args.model} first.")
             return
         with open(ranking_path) as handle:
             for row in csv.DictReader(handle):
                 rank_of[int(row["id"])] = int(row["rank"])
-        folder = os.path.join("audio", safe_name)
+        folder = os.path.join(folder, safe_name)
 
     os.makedirs(folder, exist_ok=True)
     for s in stimuli:

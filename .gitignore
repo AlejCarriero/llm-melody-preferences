@@ -12,3 +12,5 @@ venv/
 audio/
 results/dryrun.jsonl
 reports/dryrun_*
+results/v2/dryrun.jsonl
+reports/v2/dryrun_*

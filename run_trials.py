@@ -17,7 +17,13 @@ Examples:
   python run_trials.py --mode predict
   python run_trials.py --mode describe
 
-Each model's answers go to their own file: results/<model name>.jsonl
+Each model's answers go to their own file:
+  design v2 (the default): results/v2/<model name>.jsonl
+  design v1 (the pilot):   results/<model name>.jsonl      (use --design v1)
+
+Design v2 uses the 60 melodies in stimuli_v2.json and the pairs in pairs_v2.json.
+
+To cap spending on OpenRouter, add e.g. --max-cost 3.00 (US dollars for this run).
 
 Keys are read from the environment, never written in the code:
   export ANTHROPIC_API_KEY="sk-ant-..."
@@ -60,6 +66,41 @@ DESCRIBE_PROMPT = (
     "from a pentatonic scale, and asked each time which one you prefer. "
     "What do you think would drive your choices? Answer in three sentences."
 )
+
+
+# Same question as DESCRIBE_PROMPT; only the melody length differs, to match design v2.
+DESCRIBE_PROMPT_V2 = (
+    "Suppose you were shown many pairs of short melodies, each written as twenty-four note names "
+    "from a pentatonic scale, and asked each time which one you prefer. "
+    "What do you think would drive your choices? Answer in three sentences."
+)
+
+
+def build_trials_v2(mode, stimuli, pairs, repetitions):
+    """
+    Design v2: only the pairs listed in pairs_v2.json are compared, each in both orders.
+    'choose' uses all of them; 'predict' uses the first half, to save money.
+    """
+    trials = []
+    if mode == "describe":
+        for rep in range(repetitions):
+            trials.append({"trial_id": f"describe-{rep}", "mode": mode, "prompt": DESCRIBE_PROMPT_V2})
+        return trials
+
+    template = CHOOSE_PROMPT if mode == "choose" else PREDICT_PROMPT
+    text = {s["id"]: s["text"] for s in stimuli}
+    if mode == "predict":
+        pairs = pairs[:len(pairs) // 2]
+    for first, second in pairs:
+        for a_id, b_id in [(first, second), (second, first)]:
+            trials.append({
+                "trial_id": f"{mode}-{a_id}-{b_id}-0",
+                "mode": mode,
+                "a_id": a_id,
+                "b_id": b_id,
+                "prompt": template.format(a=text[a_id], b=text[b_id]),
+            })
+    return trials
 
 
 def build_trials(mode, stimuli, repetitions):
@@ -125,7 +166,12 @@ def ask_anthropic(client, model, prompt, max_tokens):
 
 
 def ask_openrouter(api_key, model, prompt, max_tokens):
-    """Same single question, sent through OpenRouter. Waits and retries if told to slow down."""
+    """
+    Same single question, sent through OpenRouter. Waits and retries if told to slow down.
+    Returns (reply text, stop reason, extra), where extra holds what OpenRouter reports
+    about the call: token counts (including thinking tokens, when given), the cost, and
+    which company's servers answered.
+    """
     import requests
     wait_seconds = 5
     last_problem = None
@@ -138,6 +184,7 @@ def ask_openrouter(api_key, model, prompt, max_tokens):
                     "model": model,
                     "max_tokens": max_tokens,
                     "messages": [{"role": "user", "content": prompt}],
+                    "usage": {"include": True},   # ask for token counts and cost
                 },
                 timeout=120,
             )
@@ -157,11 +204,12 @@ def ask_openrouter(api_key, model, prompt, max_tokens):
         if "choices" not in data:
             raise RuntimeError(f"unexpected reply: {data}")
         choice = data["choices"][0]
-        return choice["message"].get("content") or "", choice.get("finish_reason")
+        extra = {"usage": data.get("usage"), "backend": data.get("provider")}
+        return choice["message"].get("content") or "", choice.get("finish_reason"), extra
     raise RuntimeError(f"still failing after 5 attempts; last problem: {last_problem}")
 
 
-def fake_answer(trial, stimuli_by_id, rng):
+def fake_answer(trial, stimuli_by_id, rng, peak=2.2):
     """
     Stand-in for the model, used with --dry-run to check that everything works.
     It likes melodies of medium surprise, leans slightly towards answering "A",
@@ -172,7 +220,7 @@ def fake_answer(trial, stimuli_by_id, rng):
 
     def appeal(stimulus_id):
         surprisal = stimuli_by_id[stimulus_id]["features"]["mean_surprisal"]
-        return -((surprisal - 2.2) ** 2)
+        return -((surprisal - peak) ** 2)
 
     difference = appeal(trial["a_id"]) - appeal(trial["b_id"])
     probability_of_a = 1 / (1 + math.exp(-(3.0 * difference + 0.3)))
@@ -192,9 +240,14 @@ def main():
     parser.add_argument("--delay", type=float, default=0.0,
                         help="seconds to pause after each question (use with free models)")
     parser.add_argument("--max-tokens", type=int, default=None, help="cap on the length of each reply")
+    parser.add_argument("--design", choices=["v1", "v2"], default="v2",
+                        help="v2 = 60 melodies of 24 notes (default); v1 = the 18-melody pilot design")
+    parser.add_argument("--max-cost", type=float, default=None,
+                        help="stop once this run has spent this many US dollars (OpenRouter only)")
     args = parser.parse_args()
 
-    with open("stimuli.json") as handle:
+    stimuli_file = "stimuli.json" if args.design == "v1" else "stimuli_v2.json"
+    with open(stimuli_file) as handle:
         stimuli = json.load(handle)
     stimuli_by_id = {s["id"]: s for s in stimuli}
 
@@ -202,12 +255,23 @@ def main():
     if repetitions is None:
         repetitions = 20 if args.mode == "describe" else 2
 
-    trials = build_trials(args.mode, stimuli, repetitions)
+    if args.design == "v1":
+        trials = build_trials(args.mode, stimuli, repetitions)
+        results_folder = "results"
+        fake_peak = 2.2
+    else:
+        with open("pairs_v2.json") as handle:
+            pairs = json.load(handle)
+        trials = build_trials_v2(args.mode, stimuli, pairs, repetitions)
+        results_folder = os.path.join("results", "v2")
+        # The fake model's favourite level of surprise sits inside the range of the
+        # melodies, so the dry run can check that the analysis finds an inverted U.
+        fake_peak = 1.6
 
     # one results file per model; dry runs get their own so fake data never mixes with real data
     model = "dryrun" if args.dry_run else args.model
-    os.makedirs("results", exist_ok=True)
-    results_file = os.path.join("results", file_name_for(model) + ".jsonl")
+    os.makedirs(results_folder, exist_ok=True)
+    results_file = os.path.join(results_folder, file_name_for(model) + ".jsonl")
 
     already_done = set()
     if os.path.exists(results_file):
@@ -256,19 +320,24 @@ def main():
     write_lock = threading.Lock()
     finished = [0]
     failures = [0]
+    spent = [0.0]          # US dollars spent in this run, as reported by OpenRouter
+    over_budget = [False]
 
     def run_one(trial):
         if failures[0] >= 3:
-            return  # something is wrong (often the daily limit); stop asking
+            return  # something is wrong; stop asking
+        if over_budget[0]:
+            return
         stop_reason = None
+        extra = {}
         try:
             if args.dry_run:
                 with write_lock:
-                    reply = fake_answer(trial, stimuli_by_id, rng)
+                    reply = fake_answer(trial, stimuli_by_id, rng, fake_peak)
             elif args.provider == "anthropic":
                 reply, stop_reason = ask_anthropic(client, model, trial["prompt"], max_tokens)
             else:
-                reply, stop_reason = ask_openrouter(openrouter_key, model, trial["prompt"], max_tokens)
+                reply, stop_reason, extra = ask_openrouter(openrouter_key, model, trial["prompt"], max_tokens)
             if args.delay > 0:
                 time.sleep(args.delay)
         except Exception as error:  # leave the trial undone; it will be retried next run
@@ -281,6 +350,9 @@ def main():
             "mode": trial["mode"],
             "reply": reply,
             "stop_reason": stop_reason,
+            "design": args.design,
+            "usage": extra.get("usage"),
+            "backend": extra.get("backend"),
             "model": model,
             "provider": "simulated" if args.dry_run else args.provider,
             "time": time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -301,17 +373,26 @@ def main():
             with open(results_file, "a") as handle:
                 handle.write(json.dumps(record) + "\n")
             finished[0] += 1
+            cost = (extra.get("usage") or {}).get("cost")
+            if cost is not None:
+                spent[0] += float(cost)
+                if args.max_cost is not None and spent[0] >= args.max_cost:
+                    over_budget[0] = True
             if finished[0] % 25 == 0 or finished[0] == len(todo):
-                print(f"  {finished[0]}/{len(todo)}")
+                print(f"  {finished[0]}/{len(todo)}   spent so far: ${spent[0]:.2f}")
 
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
         list(pool.map(run_one, todo))
 
-    if failures[0] >= 3:
-        print("Stopped early after repeated failures. If this is a free model you have probably "
-              "hit the daily limit: run the same command again tomorrow and it will carry on.")
+    if over_budget[0]:
+        print(f"Stopped: this run reached the --max-cost limit (${spent[0]:.2f} spent). "
+              f"Run the same command again to carry on.")
+    elif failures[0] >= 3:
+        print("Stopped early after 3 failed requests; the errors are printed above. "
+              "Finished trials are saved. Run the same command again to carry on.")
     else:
-        print("Done.")
+        print(f"Done. Spent in this run: ${spent[0]:.2f}"
+              + ("" if spent[0] > 0 else " (no cost was reported)"))
 
 
 if __name__ == "__main__":

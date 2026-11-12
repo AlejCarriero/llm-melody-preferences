@@ -13,56 +13,66 @@ Keys live in your terminal session, never in the code or the repository:
     export ANTHROPIC_API_KEY="sk-ant-..."      # from console.anthropic.com
     export OPENROUTER_API_KEY="sk-or-..."      # from openrouter.ai
 
-## Check everything works, with fake answers (no key needed)
+## Design v2 (current)
 
-    python stimuli.py
+60 melodies of 24 notes, spanning fully predictable to fully random. Each melody
+meets 12 others, and every pair is shown in both orders. `stimuli_v2.json` and
+`pairs_v2.json` define the experiment and are never regenerated once data exists.
+`PREDICTIONS.md` records what we expected before the main run.
+
+Check everything works, with fake answers (no key needed):
+
     python run_trials.py --dry-run
-    python analyse.py --dry-run
+    python run_trials.py --dry-run --mode predict
+    python analyse_v2.py --dry-run
 
-## The real experiment, for one model
+The real experiment, for one model (all models go through OpenRouter, so conditions match):
 
-    python run_trials.py --limit 20            # small pilot: look inside results/
-    python run_trials.py                       # choose: 612 trials
-    python run_trials.py --mode predict        # 612 trials
-    python run_trials.py --mode describe       # 20 trials
-    python analyse.py
-    python make_audio.py --model claude-fable-5-2
+    python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --limit 50 --max-cost 0.50
+    python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --max-cost 4.00
+    python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --mode predict --max-cost 2.00
+    python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --mode describe
+    python analyse_v2.py --model anthropic/claude-fable-5.2
+    python make_audio.py --model anthropic/claude-fable-5.2
+    python compare_models.py                   # once two or more models are analysed
 
-You can stop any run with Ctrl+C and start it again; finished trials are skipped.
+`--max-cost` stops a run once it has spent that many US dollars. You can stop any
+run with Ctrl+C and start it again; finished trials are skipped.
 
-## Other models, through OpenRouter
+Trial counts per model: choose 720, predict 360, describe 20.
 
-    python run_trials.py --provider openrouter --model SOME/MODEL:free --workers 1 --delay 4
-    python analyse.py --model SOME/MODEL:free
-    python compare_models.py                   # do the models agree with each other?
+## Design v1 (the pilot)
 
-Free models are rate-limited per account, per minute and per day. When the daily
-limit is reached the script stops; run the same command the next day and it carries on.
+18 melodies of 12 notes, every pair compared. Add `--design v1` to `run_trials.py`,
+`make_audio.py` and `compare_models.py`, and use `analyse.py` for the analysis.
+Its results live in `results/` and `reports/`; v2 uses `results/v2/` and `reports/v2/`.
 
 ## Files
 
 | File | What it does |
 |---|---|
-| `stimuli.py` | Makes the 18 melodies (6 families x 3) and describes each with simple features |
-| `run_trials.py` | Asks the questions, one fresh conversation per trial, saves to `results/<model>.jsonl` |
-| `analyse.py` | Position bias, consistency, ranking, transitivity, feature fit, self-prediction |
+| `stimuli_v2.py` | Makes the 60 melodies, the listener's surprise for each, and the list of pairs |
+| `run_trials.py` | Asks the questions, one fresh conversation per trial; records cost and thinking tokens |
+| `analyse_v2.py` | Data quality, position bias, order agreement, ranking, transitivity, hypothesis fits, self-knowledge |
 | `compare_models.py` | Rank correlation between the preferences of different models |
 | `make_audio.py` | Writes each melody as a `.wav`, named by a model's ranking if you give one |
+| `stimuli.py`, `analyse.py` | The v1 design and analysis |
 
-## Planned next
+## Not done yet
 
-- Estimate each model's own surprisal by asking many instances to continue a melody
-- A listener that predicts intervals, so scale runs count as predictable
-- About 60 melodies with randomly sampled pairs, to tell the hypotheses apart
-- Fit and compare the fluency, inverted-U and learning models of value
+- Measuring each model's own surprise by asking many instances to continue a melody.
+  Design v2 uses an idealised listener's surprise, not the model's.
 
-## Known limitations
+## Known limitations (design v2)
 
-- Each pair is asked only 4 times by default (2 orders x 2 repetitions). Raise
-  `--repetitions` for firmer per-pair results.
-- The "surprisal" feature comes from a very simple listener that only tracks which
-  note follows which. It scores a scale run as surprising, although most people
-  would call it predictable.
-- 18 melodies is a small set. A feature correlation here is a hint, not a finding.
+- Surprise comes from an idealised listener, not from the model being tested. A
+  result of the form "preferences track surprise" means the listener's surprise.
+- Surprise and uncertainty are nearly the same quantity in these melodies
+  (correlation 0.95), so the design cannot separate them.
+- Each pair is asked once per order. Individual pairs are noisy; conclusions rest
+  on the pattern across all 360 pairs.
 - The model reads notation; it does not hear. Preferences may reflect how note
   names look as text and not anything musical.
+- Models that think before answering give a considered judgement; models that
+  don't give a snap one. Rankings from the two kinds are not like for like.
+- Which note a melody ends on (for example, coming to rest on C) is not controlled.
