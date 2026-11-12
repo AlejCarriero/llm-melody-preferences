@@ -29,12 +29,19 @@ Check everything works, with fake answers (no key needed):
 The real experiment, for one model (all models go through OpenRouter, so conditions match):
 
     python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --limit 50 --max-cost 0.50
-    python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --max-cost 4.00
-    python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --mode predict --max-cost 2.00
-    python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --mode describe
+    python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --backend anthropic --max-cost 4.00
+    python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --backend anthropic --mode predict --max-cost 2.00
+    python run_trials.py --provider openrouter --model anthropic/claude-fable-5.2 --backend anthropic --mode describe
     python analyse_v2.py --model anthropic/claude-fable-5.2
     python make_audio.py --model anthropic/claude-fable-5.2
     python compare_models.py                   # once two or more models are analysed
+
+`--backend` makes OpenRouter serve every request from one host, with no fallback to
+others. It takes OpenRouter's provider slug for that host (for Claude, `anthropic`);
+each model's slugs are listed at `https://openrouter.ai/api/v1/models/<model>/endpoints`.
+Every trial records both the host that answered (`backend`) and the one required
+(`backend_pin`). The first 50 Fable 5.2 choice trials ran before pinning was added and
+were served by Anthropic, Azure and Google.
 
 `--max-cost` stops a run once it has spent that many US dollars. You can stop any
 run with Ctrl+C and start it again; finished trials are skipped.

@@ -165,14 +165,26 @@ def ask_anthropic(client, model, prompt, max_tokens):
     return "".join(pieces), response.stop_reason
 
 
-def ask_openrouter(api_key, model, prompt, max_tokens):
+def ask_openrouter(api_key, model, prompt, max_tokens, backend=None):
     """
     Same single question, sent through OpenRouter. Waits and retries if told to slow down.
     Returns (reply text, stop reason, extra), where extra holds what OpenRouter reports
     about the call: token counts (including thinking tokens, when given), the cost, and
     which company's servers answered.
+
+    backend: an OpenRouter provider slug (e.g. "anthropic"). If given, the request may be
+    served only by that host, with no fallback to others (OpenRouter provider routing:
+    "order" plus "allow_fallbacks": false).
     """
     import requests
+    body = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "messages": [{"role": "user", "content": prompt}],
+        "usage": {"include": True},   # ask for token counts and cost
+    }
+    if backend:
+        body["provider"] = {"order": [backend], "allow_fallbacks": False}
     wait_seconds = 5
     last_problem = None
     for attempt in range(5):
@@ -180,12 +192,7 @@ def ask_openrouter(api_key, model, prompt, max_tokens):
             response = requests.post(
                 OPENROUTER_URL,
                 headers={"Authorization": f"Bearer {api_key}"},
-                json={
-                    "model": model,
-                    "max_tokens": max_tokens,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "usage": {"include": True},   # ask for token counts and cost
-                },
+                json=body,
                 timeout=120,
             )
         except (requests.ConnectionError, requests.Timeout) as error:
@@ -244,7 +251,13 @@ def main():
                         help="v2 = 60 melodies of 24 notes (default); v1 = the 18-melody pilot design")
     parser.add_argument("--max-cost", type=float, default=None,
                         help="stop once this run has spent this many US dollars (OpenRouter only)")
+    parser.add_argument("--backend", default=None,
+                        help="OpenRouter only: serve every request from this one host, no fallback. "
+                             "Give OpenRouter's provider slug, e.g. 'anthropic' (see the model's "
+                             "endpoints list on openrouter.ai)")
     args = parser.parse_args()
+    if args.backend and args.provider != "openrouter":
+        parser.error("--backend only works with --provider openrouter")
 
     stimuli_file = "stimuli.json" if args.design == "v1" else "stimuli_v2.json"
     with open(stimuli_file) as handle:
@@ -337,7 +350,8 @@ def main():
             elif args.provider == "anthropic":
                 reply, stop_reason = ask_anthropic(client, model, trial["prompt"], max_tokens)
             else:
-                reply, stop_reason, extra = ask_openrouter(openrouter_key, model, trial["prompt"], max_tokens)
+                reply, stop_reason, extra = ask_openrouter(openrouter_key, model, trial["prompt"],
+                                                           max_tokens, args.backend)
             if args.delay > 0:
                 time.sleep(args.delay)
         except Exception as error:  # leave the trial undone; it will be retried next run
@@ -352,7 +366,8 @@ def main():
             "stop_reason": stop_reason,
             "design": args.design,
             "usage": extra.get("usage"),
-            "backend": extra.get("backend"),
+            "backend": extra.get("backend"),      # who actually answered
+            "backend_pin": args.backend,          # who was required to answer (None = any)
             "model": model,
             "provider": "simulated" if args.dry_run else args.provider,
             "time": time.strftime("%Y-%m-%d %H:%M:%S"),
