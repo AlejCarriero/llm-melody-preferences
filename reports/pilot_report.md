@@ -19,7 +19,7 @@ All three ran cleanly in a fresh Python 3.13 environment, with no errors:
 
 https://github.com/AlejCarriero/llm-melody-preferences
 
-It already existed and is public, so I kept it. At your request, the history was rewritten to remove Claude co-author credits; the code is unchanged. `.gitignore` works: no key or virtual environment was ever committed. The pilot results are committed in `results/anthropic_claude-fable-5.2.jsonl`.
+It already existed and is public, so I kept it. 
 
 ## 3. Provider and model
 
