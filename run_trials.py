@@ -128,18 +128,27 @@ def ask_openrouter(api_key, model, prompt, max_tokens):
     """Same single question, sent through OpenRouter. Waits and retries if told to slow down."""
     import requests
     wait_seconds = 5
+    last_problem = None
     for attempt in range(5):
-        response = requests.post(
-            OPENROUTER_URL,
-            headers={"Authorization": f"Bearer {api_key}"},
-            json={
-                "model": model,
-                "max_tokens": max_tokens,
-                "messages": [{"role": "user", "content": prompt}],
-            },
-            timeout=120,
-        )
+        try:
+            response = requests.post(
+                OPENROUTER_URL,
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={
+                    "model": model,
+                    "max_tokens": max_tokens,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                timeout=120,
+            )
+        except (requests.ConnectionError, requests.Timeout) as error:
+            # dropped or timed-out connection: wait and try again, like a rate limit
+            last_problem = f"connection problem ({type(error).__name__})"
+            time.sleep(wait_seconds)
+            wait_seconds *= 2
+            continue
         if response.status_code == 429 or response.status_code >= 500:
+            last_problem = f"status {response.status_code}"
             time.sleep(wait_seconds)
             wait_seconds *= 2
             continue
@@ -149,8 +158,7 @@ def ask_openrouter(api_key, model, prompt, max_tokens):
             raise RuntimeError(f"unexpected reply: {data}")
         choice = data["choices"][0]
         return choice["message"].get("content") or "", choice.get("finish_reason")
-    raise RuntimeError(f"still refused after 5 attempts (status {response.status_code}); "
-                       f"probably the rate limit")
+    raise RuntimeError(f"still failing after 5 attempts; last problem: {last_problem}")
 
 
 def fake_answer(trial, stimuli_by_id, rng):
