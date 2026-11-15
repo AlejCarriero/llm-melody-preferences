@@ -185,6 +185,20 @@ def ask_openrouter(api_key, model, prompt, max_tokens, backend=None):
     }
     if backend:
         body["provider"] = {"order": [backend], "allow_fallbacks": False}
+    def explain(response):
+        """Status code, any Retry-After header, and the start of OpenRouter's error message.
+        Only the response is described; nothing from the request (which holds the key)."""
+        text = f"status {response.status_code}"
+        if response.headers.get("Retry-After"):
+            text += f", Retry-After {response.headers['Retry-After']}"
+        message = " ".join(response.text.split())[:300]
+        return text + (f", says: {message}" if message else "")
+
+    def log_retry(problem, attempt, wait):
+        stamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        print(f"  [{stamp}] retrying after {problem} (attempt {attempt + 1} of 5, waiting {wait}s)",
+              flush=True)
+
     wait_seconds = 5
     last_problem = None
     for attempt in range(5):
@@ -198,15 +212,19 @@ def ask_openrouter(api_key, model, prompt, max_tokens, backend=None):
         except (requests.ConnectionError, requests.Timeout) as error:
             # dropped or timed-out connection: wait and try again, like a rate limit
             last_problem = f"connection problem ({type(error).__name__})"
+            log_retry(last_problem, attempt, wait_seconds)
             time.sleep(wait_seconds)
             wait_seconds *= 2
             continue
         if response.status_code == 429 or response.status_code >= 500:
-            last_problem = f"status {response.status_code}"
+            last_problem = explain(response)
+            log_retry(last_problem, attempt, wait_seconds)
             time.sleep(wait_seconds)
             wait_seconds *= 2
             continue
-        response.raise_for_status()
+        if response.status_code >= 400:
+            # not retried; keep OpenRouter's explanation instead of a bare HTTP error
+            raise RuntimeError(f"refused, not retried: {explain(response)}")
         data = response.json()
         if "choices" not in data:
             raise RuntimeError(f"unexpected reply: {data}")
