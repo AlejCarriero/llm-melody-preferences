@@ -129,3 +129,31 @@ time the file was saved, the results file held 290 choice trials. None of them
 had been analysed, and the design conversation had not seen them; the execution
 session's progress check at about 17:00 showed only trial counts, backends and
 spend. The local save time cannot be independently verified. The commit date can.
+
+---
+
+# Amendment 2
+
+Written on 16 November 2026 at about 11:55 UTC. Nothing above this line was changed.
+
+**What had been seen when this was written:** for the choose and predict trials,
+only counts, costs, backends and the number of cut-off replies. No v2 data had
+been analysed beyond the report on the first 50 trials.
+
+**Why.** The original plan excludes cut-off replies. In predict mode, 35 of the
+first 279 replies (12.5%) were cut off at the 300-token limit and came back
+empty, and predict trials used about twice the tokens of choose trials. Cut-offs
+at that rate are unlikely to be random: they are the trials with the longest
+deliberation. Excluding them would bias the self-prediction results.
+
+**New rule, for both modes.** A trial whose reply was cut off and empty is asked
+again once, with a limit of 1,000 tokens. The original cut-off records are kept
+unchanged in a separate file. The remaining predict trials and all describe
+trials run at the 1,000 limit. Every record stores the limit it ran under. A
+reply still cut off at 1,000 is excluded and counted.
+
+**Reported alongside the results.** The cut-off rate at the 300 limit for each
+mode, and the self-prediction results with and without the re-asked trials.
+
+**Untested assumption.** That raising the limit does not change replies that
+would have completed within 300 tokens anyway.
