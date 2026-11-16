@@ -209,8 +209,10 @@ def ask_openrouter(api_key, model, prompt, max_tokens, backend=None):
                 json=body,
                 timeout=120,
             )
-        except (requests.ConnectionError, requests.Timeout) as error:
-            # dropped or timed-out connection: wait and try again, like a rate limit
+        except (requests.ConnectionError, requests.Timeout,
+                requests.exceptions.ChunkedEncodingError) as error:
+            # dropped or timed-out connection, or one broken while the reply was arriving
+            # ("Connection broken"): wait and try again, like a rate limit
             last_problem = f"connection problem ({type(error).__name__})"
             log_retry(last_problem, attempt, wait_seconds)
             time.sleep(wait_seconds)
