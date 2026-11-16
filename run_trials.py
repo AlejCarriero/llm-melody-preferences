@@ -386,6 +386,7 @@ def main():
             "usage": extra.get("usage"),
             "backend": extra.get("backend"),      # who actually answered
             "backend_pin": args.backend,          # who was required to answer (None = any)
+            "max_tokens": max_tokens,             # length limit this trial ran under
             "model": model,
             "provider": "simulated" if args.dry_run else args.provider,
             "time": time.strftime("%Y-%m-%d %H:%M:%S"),
