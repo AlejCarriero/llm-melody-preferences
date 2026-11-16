@@ -227,7 +227,7 @@ def main():
     }
     accounts = [
         ("position only (no preferences)", []),
-        ("fluency: less surprise is better", ["surprise"]),
+        ("one-way: surprise, sign free", ["surprise"]),
         ("inverted U: a preferred level of surprise", ["surprise", "surprise squared"]),
         ("learning: becomes more predictable", ["learning"]),
         ("surprise + learning", ["surprise", "learning"]),
@@ -275,7 +275,7 @@ def main():
                 f"({surprisal.min():.2f} to {surprisal.max():.2f}), so within the range the trend is one-way.")
     else:
         say("   Inverted-U fit: the curve bends the other way (extremes preferred over the middle).")
-    direction = "less" if fitted["fluency: less surprise is better"][1] < 0 else "MORE"
+    direction = "less" if fitted["one-way: surprise, sign free"][1] < 0 else "MORE"
     say(f"   One-way fit: {direction} surprise is preferred.")
     say("   Note: in these melodies surprise and uncertainty are almost the same quantity")
     say("   (correlation 0.95), so this design cannot tell them apart.")
@@ -311,6 +311,42 @@ def main():
         if clear_total:
             say(f"   On pairs with a clear actual preference: {clear_matched} of {clear_total} "
                 f"({clear_matched / clear_total:.1%}; 50% = guessing)")
+
+        # Amendment 2 sensitivity: the same two counts on subsets defined by cut-offs.
+        # Only the trial IDs are read from the cut-off file; its records are not analysed.
+        cutoff_file = os.path.join("results", "v2", safe_name + "_cutoff.jsonl")
+        if os.path.exists(cutoff_file):
+            with open(cutoff_file, encoding="utf-8") as handle:
+                reasked_ids = {json.loads(line)["trial_id"] for line in handle}
+
+            def matching_choose_id(record):
+                return f"choose-{record['a_id']}-{record['b_id']}-0"
+
+            def counts(subset):
+                same = [r for r in subset if (r["a_id"], r["b_id"]) in chosen_in_order]
+                hits = sum(1 for r in same if chosen_in_order[(r["a_id"], r["b_id"])] == r["chosen_id"])
+                clear = [r for r in subset
+                         if (min(r["a_id"], r["b_id"]), max(r["a_id"], r["b_id"])) in clear_winner]
+                clear_hits = sum(1 for r in clear if r["chosen_id"] ==
+                                 clear_winner[(min(r["a_id"], r["b_id"]), max(r["a_id"], r["b_id"]))])
+                return hits, len(same), clear_hits, len(clear)
+
+            subsets = [
+                ("never cut off (neither this trial nor its same-order choice trial)",
+                 [r for r in predict_valid
+                  if r["trial_id"] not in reasked_ids and matching_choose_id(r) not in reasked_ids]),
+                ("re-asked (cut off at 300, asked again at 1,000)",
+                 [r for r in predict_valid if r["trial_id"] in reasked_ids]),
+                ("all excluding the re-asked",
+                 [r for r in predict_valid if r["trial_id"] not in reasked_ids]),
+            ]
+            say("\n   Amendment 2 sensitivity (prediction trials by cut-off history):")
+            for label, subset in subsets:
+                hits, total, clear_hits, clear_total_sub = counts(subset)
+                say(f"   - {label}: {len(subset)} trials")
+                say(f"       same pair and order: {hits} of {total} ({hits / max(total, 1):.1%});  "
+                    f"clear preference: {clear_hits} of {clear_total_sub} "
+                    f"({clear_hits / max(clear_total_sub, 1):.1%})")
     else:
         say("   (No 'predict' trials yet.)")
 

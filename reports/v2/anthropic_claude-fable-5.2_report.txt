@@ -56,7 +56,7 @@ Model: anthropic/claude-fable-5.2   (design v2: 60 melodies)
    than the +/- are not meaningful.
    0.497 +/- 0.039 bits   85% correct   inverted U + learning
    0.498 +/- 0.038 bits   85% correct   inverted U: a preferred level of surprise
-   0.760 +/- 0.030 bits   72% correct   fluency: less surprise is better
+   0.760 +/- 0.030 bits   72% correct   one-way: surprise, sign free
    0.762 +/- 0.030 bits   72% correct   surprise + learning
    0.901 +/- 0.017 bits   61% correct   learning: becomes more predictable
    1.000 +/- 0.001 bits   52% correct   position only (no preferences)
@@ -71,6 +71,14 @@ Model: anthropic/claude-fable-5.2   (design v2: 60 melodies)
    Prediction matched the actual choice for the same pair and order: 330 of 360 (91.7%)
    Expected from position habits alone: 50.1%
    On pairs with a clear actual preference: 315 of 328 (96.0%; 50% = guessing)
+
+   Amendment 2 sensitivity (prediction trials by cut-off history):
+   - never cut off (neither this trial nor its same-order choice trial): 324 trials
+       same pair and order: 308 of 324 (95.1%);  clear preference: 297 of 302 (98.3%)
+   - re-asked (cut off at 300, asked again at 1,000): 35 trials
+       same pair and order: 21 of 35 (60.0%);  clear preference: 17 of 25 (68.0%)
+   - all excluding the re-asked: 325 trials
+       same pair and order: 309 of 325 (95.1%);  clear preference: 298 of 303 (98.3%)
 
    Thinking: average 27 tokens per choice.
    Rank correlation between thinking length and how far apart the two melodies
