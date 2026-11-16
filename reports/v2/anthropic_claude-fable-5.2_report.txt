@@ -1,74 +1,99 @@
 Model: anthropic/claude-fable-5.2   (design v2: 60 melodies)
 
 0. DATA QUALITY
-   Choice trials: 50   unusable replies: 0   cut off by the length limit: 0
-   Cost reported for all trials in this file: $0.17
-   Served by: Anthropic, Azure, Google
+   Choice trials: 720   unusable replies: 0   cut off by the length limit: 0
+   Cost reported for all trials in this file: $4.94
+   Served by: Anthropic
 
 1. POSITION BIAS
-   Answered 'A' on 40.0% of trials (50% = no bias).
+   Answered 'A' on 51.5% of trials (50% = no bias).
 
 2. ORDER AGREEMENT
-   Pairs shown in both orders: 4
-   Same melody chosen both times: 4 (100.0%)
-   Expected with no preferences, given the position bias: 48.0%
-   Probability of this much agreement by luck: 0.053
-   -> No convincing evidence of stable preferences. Treat the rest with suspicion.
+   Pairs shown in both orders: 360
+   Same melody chosen both times: 323 (89.7%)
+   Expected with no preferences, given the position bias: 50.0%
+   Probability of this much agreement by luck: 1.5e-58
+   -> Choices depend on the melody, not only on the slot.
 
 3. RANKING
    Most preferred:
-    1. S25 motif_variation  +2.27  surprisal 1.99  E4 A4 G4 E4 G4 C5 A4 G4 E4 A4 G4 E4 A4 D5 C5 A4 G4 C5 A4 G4 E4 A4 G4 E4
-    2. S22 motif_variation  +2.18  surprisal 1.99  D4 G4 E4 D4 E4 A4 G4 E4 D4 G4 E4 D4 G4 C5 A4 G4 E4 A4 G4 E4 D4 G4 E4 D4
-    3. S24 motif_variation  +1.90  surprisal 2.34  D4 G4 C4 D4 E4 A4 D4 E4 D4 G4 C4 D4 G4 C5 E4 G4 E4 A4 D4 E4 D4 G4 E4 D4
-    4. S42 noisy_motif_30   +1.90  surprisal 2.29  E4 C4 D4 C4 E4 A4 E4 C4 D4 C4 D4 C4 E4 C4 D4 C4 E4 C4 G4 C4 E4 C4 D4 D4
-    5. S36 noisy_motif_15   +1.71  surprisal 2.68  E4 D4 C5 A4 E4 C5 C5 A4 A4 D4 D4 A4 E4 C5 C5 A4 E4 D4 D5 A4 E4 D4 C5 A4
-    6. S23 motif_variation  +1.17  surprisal 2.42  D4 G4 C4 G4 E4 A4 D4 A4 D4 G4 C4 G4 G4 C5 E4 C5 E4 A4 D4 A4 D4 G4 E4 D4
-    7. S43 noisy_motif_30   +1.17  surprisal 2.65  E5 A4 G4 E4 E5 A4 G4 E4 E5 A4 G4 E5 C5 A4 G4 E4 E5 E5 G4 E4 A4 A4 A4 E4
-    8. S19 scale_run        +1.17  surprisal 1.39  E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4
+    1. S25 motif_variation  +1.88  surprisal 1.99  E4 A4 G4 E4 G4 C5 A4 G4 E4 A4 G4 E4 A4 D5 C5 A4 G4 C5 A4 G4 E4 A4 G4 E4
+    2. S27 motif_variation  +1.77  surprisal 2.20  E4 A4 G4 A4 G4 C5 A4 C5 E4 A4 G4 A4 A4 D5 C5 D5 G4 C5 A4 C5 E4 A4 G4 E4
+    3. S18 scale_run        +1.48  surprisal 2.21  C4 D4 E4 D4 E4 G4 E4 G4 A4 G4 A4 C5 C5 A4 G4 A4 G4 E4 G4 E4 D4 E4 D4 C4
+    4. S20 motif_variation  +1.46  surprisal 2.25  D4 E4 C4 G4 E4 G4 D4 A4 D4 E4 C4 G4 G4 A4 E4 C5 E4 G4 D4 A4 D4 E4 D4 D4
+    5. S49 random_walk      +1.36  surprisal 3.04  G4 E4 A4 E4 D4 G4 E4 G4 C5 D5 E5 E5 C5 A4 G4 A4 G4 A4 E4 G4 C5 E5 E5 D5
+    6. S45 noisy_motif_50   +1.34  surprisal 2.50  E5 C5 C4 G4 E5 C5 C4 G4 E5 C5 C4 G4 E5 D4 G4 G4 E4 C5 D5 G4 E5 C5 A4 G4
+    7. S24 motif_variation  +1.20  surprisal 2.34  D4 G4 C4 D4 E4 A4 D4 E4 D4 G4 C4 D4 G4 C5 E4 G4 E4 A4 D4 E4 D4 G4 E4 D4
+    8. S22 motif_variation  +1.19  surprisal 1.99  D4 G4 E4 D4 E4 A4 G4 E4 D4 G4 E4 D4 G4 C5 A4 G4 E4 A4 G4 E4 D4 G4 E4 D4
    Least preferred:
-   53. S07 repeat           -1.12  surprisal 1.31  A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4
-   54. S39 noisy_motif_15   -1.19  surprisal 1.24  A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4
-   55. S13 repeat           -1.58  surprisal 1.24  G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4
-   56. S06 repeat           -1.63  surprisal 1.31  D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4
-   57. S31 motif_surprise   -1.63  surprisal 1.58  E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 D5 D4 A4 E4
-   58. S08 repeat           -2.28  surprisal 1.05  C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5
-   59. S04 trivial          -2.64  surprisal 0.81  E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5
-   60. S00 trivial          -2.73  surprisal 0.50  D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4
+   53. S09 repeat           -1.27  surprisal 1.04  D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4
+   54. S01 trivial          -1.43  surprisal 0.81  D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4
+   55. S08 repeat           -1.43  surprisal 1.05  C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5
+   56. S12 repeat           -1.43  surprisal 1.04  D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4
+   57. S07 repeat           -1.50  surprisal 1.31  A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4
+   58. S05 trivial          -1.74  surprisal 0.50  D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5
+   59. S03 trivial          -1.82  surprisal 0.50  G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4
+   60. S00 trivial          -2.31  surprisal 0.50  D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4
 
    Family averages (with the family's average surprisal):
-   motif_variation  +1.09   surprisal 2.23
-   noisy_motif_30   +0.52   surprisal 2.46
-   random_walk      +0.40   surprisal 2.81
-   noisy_motif_50   +0.33   surprisal 2.64
-   scale_run        +0.24   surprisal 1.63
-   noisy_motif_15   +0.12   surprisal 1.96
-   random           -0.12   surprisal 3.04
-   motif_surprise   -0.32   surprisal 1.64
-   repeat           -0.90   surprisal 1.20
-   trivial          -0.99   surprisal 0.65
+   motif_variation  +1.31   surprisal 2.23
+   random_walk      +0.96   surprisal 2.81
+   noisy_motif_50   +0.70   surprisal 2.64
+   noisy_motif_30   +0.62   surprisal 2.46
+   scale_run        +0.42   surprisal 1.63
+   noisy_motif_15   +0.01   surprisal 1.96
+   motif_surprise   -0.26   surprisal 1.64
+   random           -0.43   surprisal 3.04
+   repeat           -1.24   surprisal 1.20
+   trivial          -1.59   surprisal 0.65
 
 4. TRANSITIVITY
-   Not enough data yet.
+   Circular triples: 0 of 154 (0.0%). Random choices would give about 25%.
 
 5. HYPOTHESES
    Each account predicts held-out trials. 'bits' is how surprised the account is by
    the model's real answers: 1.00 = coin flip, lower is better. Differences smaller
    than the +/- are not meaningful.
-   0.751 +/- 0.133 bits   70% correct   fluency: less surprise is better
-   0.756 +/- 0.133 bits   68% correct   surprise + learning
-   0.857 +/- 0.378 bits   76% correct   inverted U + learning
-   0.872 +/- 0.342 bits   70% correct   inverted U: a preferred level of surprise
-   0.944 +/- 0.097 bits   62% correct   learning: becomes more predictable
-   0.994 +/- 0.037 bits   60% correct   position only (no preferences)
+   0.497 +/- 0.039 bits   85% correct   inverted U + learning
+   0.498 +/- 0.038 bits   85% correct   inverted U: a preferred level of surprise
+   0.760 +/- 0.030 bits   72% correct   fluency: less surprise is better
+   0.762 +/- 0.030 bits   72% correct   surprise + learning
+   0.901 +/- 0.017 bits   61% correct   learning: becomes more predictable
+   1.000 +/- 0.001 bits   52% correct   position only (no preferences)
 
-   Inverted-U fit: preferred surprise level is 2.53 bits (melodies range from 0.50 to 3.05).
+   Inverted-U fit: preferred surprise level is 2.33 bits (melodies range from 0.50 to 3.05).
    One-way fit: MORE surprise is preferred.
    Note: in these melodies surprise and uncertainty are almost the same quantity
    (correlation 0.95), so this design cannot tell them apart.
 
 6. SELF-KNOWLEDGE
-   (No 'predict' trials yet.)
+   Prediction trials: 360
+   Prediction matched the actual choice for the same pair and order: 330 of 360 (91.7%)
+   Expected from position habits alone: 50.1%
+   On pairs with a clear actual preference: 315 of 328 (96.0%; 50% = guessing)
 
-   Thinking: average 37 tokens per choice.
+   Thinking: average 27 tokens per choice.
    Rank correlation between thinking length and how far apart the two melodies
-   are in the ranking: -0.19   (negative = longer on close calls)
+   are in the ranking: -0.41   (negative = longer on close calls)
+
+   STATED THEORIES (what instances said would drive their choices)
+   - I'd most likely favor melodies with audible-on-paper structure: repeated motifs with slight variation, mostly stepwise motion broken by an occasional leap, a clear arc, and an ending that settles on a note that feels like home. Since I'd be reading note names rather than hearing anything, those preferences would come from patterns in how people write about and notate music they find pleasing, not from any experience of sound. I'd also suspect some less flattering influences, like a bias toward whichever melody was listed first or second, and I can't be sure my account here would match what my choices actually revealed.
+   - I wouldn't be hearing anything, so my choices would probably track patterns visible in the text: repeated motifs with slight variation, a clear arc of rising and falling, mostly stepwise motion with an occasional leap, and an ending that settles on a note that feels like home. Those preferences would largely be absorbed from how people write about music, which tends to favor a balance of predictability and surprise over sequences that seem either random or monotonous. I'd also suspect less flattering influences, such as a bias toward whichever melody came first or second, and I can't be sure my account of my own reasons would match what actually drove the choices.
+   - I think my choices would mostly track structure that is visible in the text: repeated motifs with slight variation, a balance of stepwise motion and occasional leaps, a clear overall contour, and an ending that settles on a note that feels like home. Since I would be reading note names rather than hearing sound, these preferences would reflect patterns I absorbed from how people write about and notate music, not any auditory experience. I would also suspect less flattering influences, such as a bias toward whichever melody comes first or toward sequences that simply look more orderly, and my own account of my reasons might not match what actually drives the choices.
+   - I suspect I'd favor melodies with a balance of repetition and surprise: a motif that returns or gets varied, mostly stepwise motion with an occasional leap, and an ending that feels resolved, such as landing on the note that seems like home. Since I'd be reading note names rather than hearing anything, my choices would really reflect patterns I can detect in the text, like contour, symmetry, and phrase structure, filtered through what I've absorbed from human writing about what makes melodies good. I'm also unsure how well I can introspect on this, so my actual choices might be swayed by things I wouldn't predict, like which melody came first in the pair or which simply looked more orderly on the page.
+   - I'd probably favor melodies with a balance of pattern and surprise: repeated motifs that get varied, a clear arc that rises and falls, mostly stepwise motion with an occasional leap, and an ending that resolves on the home note. Since I'd be reading note names rather than hearing sound, my choices would really reflect structural regularities in the text and what my training has associated with descriptions of "good" melodies, not any auditory experience. I'd also hold this self-report loosely, because my actual choices might be swayed by things I can't introspect on well, such as which melody was shown first or superficial features of the sequences.
+   - I'd most likely favor melodies with recognizable structure: a repeated motif that gets varied, a clear arc of rising and falling, mostly stepwise motion with an occasional leap, and an ending that settles on a note that feels like home. Since I'd be reading note names rather than hearing anything, my choices would really reflect patterns absorbed from how people write about and notate music, probably a preference for a balance between predictability and surprise over sequences that seem random or monotonous. I'm also not sure my account of my own reasons would be accurate, and some of my choices might come from arbitrary factors, like which melody was listed first, and not be consistent if you asked again.
+   - I'd most likely favor melodies with visible structure: repeated or varied motifs, mostly stepwise motion with an occasional leap, a clear arc, and an ending that settles on a note that feels like home. Since I'd be reading note names rather than hearing anything, those preferences would come from pattern regularities in the text and from what I've absorbed about how people describe good melodies, not from an auditory experience. I'd also suspect some influences I couldn't report accurately, such as a bias toward the first or second option or toward certain note names, so my stated reasons might not fully match what actually drives the choices.
+   - I'd probably favor melodies with audible structure: motifs that repeat with variation, a clear arc of rising and falling, mostly stepwise motion with a few well-placed leaps, and an ending that settles on a note that feels like home. Since I'd be reading note names rather than hearing sound, my choices would really reflect symbolic patterns that resemble the well-formed melodies and music-theory descriptions in my training data, favoring a balance between predictability and surprise over pure repetition or randomness. I'm also not sure my stated reasons would match what actually drives my choices, which could include incidental things like which melody came first, so my actual pattern of picks would be better evidence than this self-report.
+   - I'd probably favor melodies with audible structure on the page: a motif that returns with variation, a contour that rises and falls with a sense of direction, mostly stepwise motion broken up by an occasional leap, and an ending that settles on a note that feels like home. Since I'd be reading note names rather than hearing sound, my choices would really reflect pattern preferences absorbed from how people write about music, such as a balance between repetition and surprise, rather than any auditory pleasure. I also suspect some of my choices would be driven by things I couldn't accurately report, such as a bias toward whichever melody came first or noise between near-equal options, so my explanation here is an educated guess rather than a reliable account.
+   - I'd probably favor melodies with audible-on-paper structure: a motif that repeats with variation, a contour that rises and falls in an arc, mostly stepwise motion with an occasional leap, and an ending that settles on the tonic. Since I'd be reading note names rather than hearing anything, those preferences would reflect what I've absorbed from how people write about good melodies, not an experience of sound. I also suspect less flattering factors would creep in, like a bias toward whichever melody is listed first or toward sequences that look orderly as text, and my guess about my own motives might not match what my choices would actually show.
+   - I'd probably favor melodies with a balance of pattern and surprise: repeated motifs that get varied, a clear contour that rises and falls, mostly stepwise motion with an occasional leap, and an ending that settles on a note that feels like home. Since I'd be reading note names rather than hearing anything, my choices would really reflect structural regularities I've absorbed from text about music and from notated tunes, so melodies that resemble familiar folk-like phrasing (say, four balanced six-note phrases) would likely win out. I should also admit that I can't be sure my stated reasons would match what actually drives the choices, which might include less noble factors like which melody was shown first or surface patterns in the letter sequences themselves.
+   - I'd expect to favor melodies with visible structure: a short motif that repeats with variation, mostly stepwise motion with an occasional leap, a clear overall contour such as an arch, and an ending that settles on a note that feels like home. Since I'd be reading note names rather than hearing anything, those choices would reflect patterns I absorbed from human writing about music and from notated tunes, so I'd likely prefer whatever resembles the folk-like melodies people tend to call pleasing over sequences that look random or monotonous. My introspection here is uncertain, though, and my actual choices might also be swayed by things I wouldn't predict or endorse, such as which melody is listed first or surface regularities in the letter sequence that have little to do with how it would sound.
+   - I think my choices would mostly track structure visible in the text itself: motifs that repeat with variation, a balance of stepwise motion and leaps, a clear arc, and an ending that settles on a note that feels like home. Since I'd be reading note names rather than hearing anything, those leanings would come from patterns I've absorbed from how people write about and notate music, not from any experience of the sound. I'd also suspect some of my choices would come from less flattering sources, like a bias toward whichever melody was listed first or toward sequences that just look tidy, and I can't be sure my introspective account matches what would actually drive them.
+   - I'd probably favor melodies with audible structure on the page: a short motif that repeats with variation, a contour that rises and falls rather than wandering, mostly stepwise motion with an occasional leap, and an ending that settles on a note that feels like home. Underneath that, I suspect the real driver would be a balance of predictability and surprise, since a sequence that is too repetitive reads as dull and one that is too random reads as noise. But I'd be judging symbolic patterns rather than hearing anything, and my choices might also be swayed by things I wouldn't notice or report, like which melody came first, so my explanation could be partly a plausible story rather than the true cause.
+   - I'd probably favor melodies with a recognizable shape: a contour that rises and falls with some direction, a repeated motif that gets varied, and an ending that settles on a note that feels like home. I'd likely also prefer a balance between predictability and surprise, with mostly stepwise motion broken by an occasional leap, over sequences that seem either random or mechanically repetitive. That said, I'd be judging patterns in text rather than hearing anything, so my choices would reflect regularities I've absorbed from how people write about and notate music, and my account of my own reasons might not match what actually drives them.
+   - I'd probably favor melodies with audible structure: motifs that repeat with slight variation, a clear arc of rising and falling, mostly stepwise motion with an occasional leap, and an ending that settles on a note that feels like home. But I'd be reading note names rather than hearing sound, so my choices would really track patterns in the text that I've learned to associate with "good melody" from how people write about and notate music. I'd also suspect some less flattering influences, like a bias toward whichever melody came first or a pull toward sequences that simply look orderly, and I can't be sure my account of my own reasons would match what actually drove the choices.
+   - I'd probably favor melodies with a recognizable structure: motifs that repeat with slight variation, a contour that rises and falls rather than wandering, a mix of stepwise motion and occasional leaps, and an ending that settles on the tonic. Since I'd be reading note names rather than hearing sound, my "preference" would really be pattern-matching against what human writing about music treats as pleasing, and it could be swayed by things unrelated to music, like which melody was listed first or which letter sequence looks more orderly as text. I also can't be sure my account of my reasons would match what actually drove the choices, so the pattern across many pairs would be better evidence than my introspection.
+   - I'd probably favor melodies with structure I can detect in the text: a motif that repeats and then varies, a contour that rises and falls with some shape, mostly stepwise motion with a few leaps, and an ending that feels resolved on the home note. Since I'd be reading note names rather than hearing anything, my "preference" would really be pattern-matching against what written music and music theory treat as well-formed, a balance between predictability and surprise. I'd hold this account loosely, though, because my choices might also be swayed by things I can't easily introspect on, like which melody is listed first or surface regularities in the letter sequences.
+   - I'd probably favor melodies with a balance of pattern and surprise: a recognizable motif that repeats or varies, mostly stepwise motion with an occasional leap, and an ending that settles on a note that feels like home. Since I'd be reading note names rather than hearing anything, my choices would really reflect structural regularities in the symbol sequence, filtered through what I've absorbed from human writing about what makes a melody pleasing. I'd also suspect some less flattering influences, like a bias toward whichever melody appears first or simple repetition masquerading as "coherence," and I can't be sure the reasons I'd give would match what actually drove the choices.
+   - I'd most likely favor melodies with recognizable structure: a motif that repeats with variation, a balance of stepwise motion and occasional leaps, a clear contour, and an ending that settles on a stable note like the tonic. Since I'd be reading note names rather than hearing anything, those choices would reflect patterns I've absorbed from how people write about and notate music, a kind of preference for order pitched between monotony and randomness, rather than any auditory experience. I'd also suspect some less flattering influences, like a bias toward whichever melody appears first or toward surface regularities in the text, and my prediction here might not match what I'd actually do.

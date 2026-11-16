@@ -1,0 +1,118 @@
+Run started 2026-11-15 18:22:36 (machine kept awake while this runs)
+
+=== choose: remaining trials, one at a time, cap $3.00 === started 2026-11-15 18:22:36
+Mode: choose. 720 trials in total, 362 already done or not selected, running 358 now -> results\v2\anthropic_claude-fable-5.2.jsonl
+  25/358   spent so far: $0.07
+  50/358   spent so far: $0.13
+  75/358   spent so far: $0.20
+  100/358   spent so far: $0.29
+  125/358   spent so far: $0.37
+  150/358   spent so far: $0.45
+  175/358   spent so far: $0.53
+  200/358   spent so far: $0.61
+  225/358   spent so far: $0.68
+  250/358   spent so far: $0.77
+  275/358   spent so far: $0.84
+  300/358   spent so far: $0.93
+  325/358   spent so far: $1.01
+  350/358   spent so far: $1.09
+  358/358   spent so far: $1.11
+Done. Spent in this run: $1.11
+--- check after choose, 2026-11-15 18:42:19
+[check] choose: 720 of 720 saved, spent $2.14, stop reasons {'stop': 719, 'length': 1}
+[check] choose: passed
+
+=== predict: one at a time, cap $1.75 === started 2026-11-15 18:42:19
+Mode: predict. 360 trials in total, 0 already done or not selected, running 360 now -> results\v2\anthropic_claude-fable-5.2.jsonl
+  25/360   spent so far: $0.17
+  50/360   spent so far: $0.33
+  75/360   spent so far: $0.53
+  100/360   spent so far: $0.66
+  125/360   spent so far: $0.77
+  150/360   spent so far: $0.93
+  175/360   spent so far: $1.09
+  200/360   spent so far: $1.26
+  225/360   spent so far: $1.40
+  250/360   spent so far: $1.58
+  275/360   spent so far: $1.73
+Stopped: this run reached the --max-cost limit ($1.75 spent). Run the same command again to carry on.
+--- check after predict, 2026-11-15 19:02:31
+[check] choose: 720 of 720 saved, spent $2.14, stop reasons {'stop': 719, 'length': 1}
+[check] predict: 279 of 360 saved, spent $1.75, stop reasons {'stop': 244, 'length': 35}
+[check] STOP: predict is incomplete (279 of 360)
+
+STOPPED 2026-11-15 19:02:31. Nothing further was run. See the lines above.
+
+[note 2026-11-16 12:08:31 UTC] run_trials.py now stores max_tokens in each record (commit eb792dc). Every record written before this change ran at max_tokens 300 (the OpenRouter default; no run passed --max-tokens). Checked: no earlier record used more than 300 output tokens.
+
+########## Amendment 2 run (limit 1000 tokens) started 2026-11-16 12:12:51 (machine kept awake while this runs)
+
+=== choose: re-ask the 1 cut-off trial, limit 1000, no cap set === started 2026-11-16 12:12:51
+Mode: choose. 720 trials in total, 719 already done or not selected, running 1 now -> results\v2\anthropic_claude-fable-5.2.jsonl
+  failed choose-32-55-0: refused, not retried: status 401, says: {"error":{"message":"Missing Authentication header","code":401}}
+Done. Spent in this run: $0.00 (no cost was reported)
+--- check after choose, 2026-11-16 12:12:53
+[check] choose: 719 of 720 saved, spent $2.13, stop reasons {'stop': 719}
+[check] predict: 244 of 360 saved, spent $1.26, stop reasons {'stop': 244}
+[check] STOP: choose is incomplete (719 of 720)
+
+STOPPED 2026-11-16 12:12:53. Nothing further was run. See the lines above.
+
+########## Amendment 2 run (limit 1000 tokens) started 2026-11-16 12:13:21 (machine kept awake while this runs)
+
+=== choose: re-ask the 1 cut-off trial, limit 1000, no cap set === started 2026-11-16 12:13:21
+Mode: choose. 720 trials in total, 719 already done or not selected, running 1 now -> results\v2\anthropic_claude-fable-5.2.jsonl
+  1/1   spent so far: $0.01
+Done. Spent in this run: $0.01
+--- check after choose, 2026-11-16 12:13:28
+[check] choose: 720 of 720 saved, spent $2.14, stop reasons {'stop': 720}
+[check] predict: 244 of 360 saved, spent $1.26, stop reasons {'stop': 244}
+[check] choose: passed
+
+=== predict: 81 remaining + 35 re-asked, limit 1000, cap $1.50 === started 2026-11-16 12:13:28
+Mode: predict. 360 trials in total, 244 already done or not selected, running 116 now -> results\v2\anthropic_claude-fable-5.2.jsonl
+  25/116   spent so far: $0.33
+  50/116   spent so far: $0.57
+  75/116   spent so far: $0.86
+  failed predict-55-33-0: ("Connection broken: ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)", ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))
+  [2026-11-16 12:53:17] retrying after connection problem (ConnectionError) (attempt 1 of 5, waiting 5s)
+  [2026-11-16 14:16:42] retrying after connection problem (ConnectionError) (attempt 2 of 5, waiting 10s)
+  [2026-11-16 14:16:55] retrying after connection problem (ConnectionError) (attempt 3 of 5, waiting 20s)
+  100/116   spent so far: $1.04
+Done. Spent in this run: $1.20
+--- check after predict, 2026-11-16 14:19:43
+[check] choose: 720 of 720 saved, spent $2.14, stop reasons {'stop': 720}
+[check] predict: 359 of 360 saved, spent $2.46, stop reasons {'stop': 359}
+[check] STOP: predict is incomplete (359 of 360)
+
+STOPPED 2026-11-16 14:19:44. Nothing further was run. See the lines above.
+
+########## Amendment 2 run (limit 1000 tokens) started 2026-11-16 15:30:45 (machine kept awake while this runs)
+
+=== choose: re-ask the 1 cut-off trial, limit 1000, no cap set === started 2026-11-16 15:30:45
+Mode: choose. 720 trials in total, 720 already done or not selected, running 0 now -> results\v2\anthropic_claude-fable-5.2.jsonl
+--- check after choose, 2026-11-16 15:30:45
+[check] choose: 720 of 720 saved, spent $2.14, stop reasons {'stop': 720}
+[check] predict: 359 of 360 saved, spent $2.46, stop reasons {'stop': 359}
+[check] choose: passed
+
+=== predict: 81 remaining + 35 re-asked, limit 1000, cap $1.50 === started 2026-11-16 15:30:46
+Mode: predict. 360 trials in total, 359 already done or not selected, running 1 now -> results\v2\anthropic_claude-fable-5.2.jsonl
+  1/1   spent so far: $0.02
+Done. Spent in this run: $0.02
+--- check after predict, 2026-11-16 15:30:58
+[check] choose: 720 of 720 saved, spent $2.14, stop reasons {'stop': 720}
+[check] predict: 360 of 360 saved, spent $2.48, stop reasons {'stop': 360}
+[check] predict: passed
+
+=== describe: 20 trials, limit 1000, cap $0.50 === started 2026-11-16 15:30:58
+Mode: describe. 20 trials in total, 0 already done or not selected, running 20 now -> results\v2\anthropic_claude-fable-5.2.jsonl
+  20/20   spent so far: $0.32
+Done. Spent in this run: $0.32
+--- check after describe, 2026-11-16 15:33:10
+[check] choose: 720 of 720 saved, spent $2.14, stop reasons {'stop': 720}
+[check] predict: 360 of 360 saved, spent $2.48, stop reasons {'stop': 360}
+[check] describe: 20 of 20 saved, spent $0.32, stop reasons {'stop': 20}
+[check] describe: passed
+
+ALL THREE MODES COMPLETE 2026-11-16 15:33:13.
