@@ -4,6 +4,8 @@ Many fresh instances of the model are each shown two short melodies (as note nam
 and asked which one they prefer. We then check whether the answers agree with each
 other, what predicts them, and whether the model can predict its own choices.
 
+**Listen for yourself:** [the listening test](https://alejcarriero.github.io/llm-melody-preferences/) (`docs/index.html`) plays the 60 design-v2 melodies and embeds Claude Fable 5.2's ranking from `reports/v2/anthropic_claude-fable-5.2_ranking.csv`.
+
 ## Setup (once)
 
     pip install -r requirements.txt
