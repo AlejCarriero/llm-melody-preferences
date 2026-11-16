@@ -157,3 +157,30 @@ mode, and the self-prediction results with and without the re-asked trials.
 
 **Untested assumption.** That raising the limit does not change replies that
 would have completed within 300 tokens anyway.
+
+---
+
+# Amendment 3
+
+Written on 16 November 2026 at about 17:35 UTC. Nothing above this line was changed.
+
+**What had been seen when this was written:** the complete design v2 results for
+Claude Fable 5.2. No data from any other model.
+
+**Comparison models** (choice trials only, 720 each, each pinned to one host):
+google/gemini-4-carbon, deepseek/deepseek-v4-pro-0813, qwen/qwen3.8-27b,
+openai/gpt-6-luna.
+
+**Settings.** Each comparison model runs at the lowest thinking setting it
+allows ("none" where available), with a reply limit of 1,000 tokens. Reason:
+Claude Fable 5.2's median thinking on a choice trial was zero tokens, so the
+nearest matched condition is a quick answer. The match is imperfect: Fable ran on
+its adaptive default with no setting sent, and gemini-4-carbon cannot turn
+thinking off. Thinking tokens are recorded per trial.
+
+**Exclusion rule.** A model whose 20-trial pilot gives more than 2 unusable
+replies is not run further and is reported as excluded.
+
+**Analysis.** The same analyse_v2.py report for each model, then
+compare_models.py. The prediction recorded earlier stands: rankings correlate
+positively with Fable's, above +0.5 for the large models.
