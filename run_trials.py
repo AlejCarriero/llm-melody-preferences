@@ -165,7 +165,7 @@ def ask_anthropic(client, model, prompt, max_tokens):
     return "".join(pieces), response.stop_reason
 
 
-def ask_openrouter(api_key, model, prompt, max_tokens, backend=None):
+def ask_openrouter(api_key, model, prompt, max_tokens, backend=None, effort=None):
     """
     Same single question, sent through OpenRouter. Waits and retries if told to slow down.
     Returns (reply text, stop reason, extra), where extra holds what OpenRouter reports
@@ -185,6 +185,10 @@ def ask_openrouter(api_key, model, prompt, max_tokens, backend=None):
     }
     if backend:
         body["provider"] = {"order": [backend], "allow_fallbacks": False}
+    if effort:
+        # OpenRouter's unified reasoning setting; "none" disables thinking where the model allows it.
+        # Nothing is sent when effort is None, so the model runs on its own default.
+        body["reasoning"] = {"effort": effort}
     def explain(response):
         """Status code, any Retry-After header, and the start of OpenRouter's error message.
         Only the response is described; nothing from the request (which holds the key)."""
@@ -275,9 +279,15 @@ def main():
                         help="OpenRouter only: serve every request from this one host, no fallback. "
                              "Give OpenRouter's provider slug, e.g. 'anthropic' (see the model's "
                              "endpoints list on openrouter.ai)")
+    parser.add_argument("--reasoning-effort", default=None,
+                        choices=["max", "xhigh", "high", "medium", "low", "minimal", "none"],
+                        help="OpenRouter only: thinking level sent as reasoning.effort ('none' turns "
+                             "thinking off where the model allows it). Default: nothing is sent.")
     args = parser.parse_args()
     if args.backend and args.provider != "openrouter":
         parser.error("--backend only works with --provider openrouter")
+    if args.reasoning_effort and args.provider != "openrouter":
+        parser.error("--reasoning-effort only works with --provider openrouter")
 
     stimuli_file = "stimuli.json" if args.design == "v1" else "stimuli_v2.json"
     with open(stimuli_file) as handle:
@@ -371,7 +381,8 @@ def main():
                 reply, stop_reason = ask_anthropic(client, model, trial["prompt"], max_tokens)
             else:
                 reply, stop_reason, extra = ask_openrouter(openrouter_key, model, trial["prompt"],
-                                                           max_tokens, args.backend)
+                                                           max_tokens, args.backend,
+                                                           args.reasoning_effort)
             if args.delay > 0:
                 time.sleep(args.delay)
         except Exception as error:  # leave the trial undone; it will be retried next run
@@ -389,6 +400,7 @@ def main():
             "backend": extra.get("backend"),      # who actually answered
             "backend_pin": args.backend,          # who was required to answer (None = any)
             "max_tokens": max_tokens,             # length limit this trial ran under
+            "reasoning_effort": args.reasoning_effort,  # thinking level sent (None = none sent)
             "model": model,
             "provider": "simulated" if args.dry_run else args.provider,
             "time": time.strftime("%Y-%m-%d %H:%M:%S"),
