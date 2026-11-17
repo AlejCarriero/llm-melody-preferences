@@ -7,13 +7,14 @@ others. The question was whether anything stable sits behind its answers.
 
 ## Try it yourself (no installation)
 
+- **[Have a look at the results, and see how you compare](https://alejcarriero.github.io/llm-melody-preferences/)**
+
+Or more directly:
 - **[Be the subject](https://alejcarriero.github.io/llm-melody-preferences/play.html):**
   do the model's task. Pick between pairs of melodies, by ear or by reading the
   notes as the model did, and see how consistent you are and how your taste compares.
 - **[Listen and rate](https://alejcarriero.github.io/llm-melody-preferences/listen.html):**
   hear the melodies the model liked most and least, in a random order, and rate them.
-- **[About the experiment](https://alejcarriero.github.io/llm-melody-preferences/):**
-  the findings in plain language, with a chart.
 
 The pages run entirely in your browser and send nothing anywhere.
 
