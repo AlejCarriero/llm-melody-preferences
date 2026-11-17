@@ -7,9 +7,8 @@ others. The question was whether anything stable sits behind its answers.
 
 ## Try it yourself (no installation)
 
-- **[Have a look at the results, and see how you compare](https://alejcarriero.github.io/llm-melody-preferences/)**
+**[Have a look at the results, and see how you compare](https://alejcarriero.github.io/llm-melody-preferences/)**
 
-Or more directly:
 - **[Be the subject](https://alejcarriero.github.io/llm-melody-preferences/play.html):**
   do the model's task. Pick between pairs of melodies, by ear or by reading the
   notes as the model did, and see how consistent you are and how your taste compares.
