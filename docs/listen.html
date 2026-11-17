@@ -139,8 +139,18 @@ summary { cursor: pointer; color: var(--muted); }
         <button class="primary" id="copy">Copy my results</button>
         <span class="muted" id="copied" role="status"></span>
       </div>
-      <p class="muted">Nothing is sent anywhere: your ratings stay in this browser. If copying is blocked, select the text below and copy it by hand.</p>
+      <p class="muted">Nothing is sent unless you choose to share it below: your ratings stay in this browser. If copying is blocked, select the text below and copy it by hand.</p>
       <textarea id="out" rows="6" readonly></textarea>
+      <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 14px;">
+        <h2 style="font-size: 17px;">Share them with the project (optional)</h2>
+        <p class="muted">Shared results, including your notes above, are added to the public <a href="https://github.com/AlejCarriero/llm-melody-preferences/tree/main/human_listening">human_listening</a> folder of the project, with the name below if you give one. Leave it blank to stay anonymous. Nothing is sent until you press Submit or Send yourself.</p>
+        <label for="share-name">Name or nickname (optional)</label>
+        <input id="share-name" type="text" maxlength="60" autocomplete="off" style="font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink);">
+        <div class="row">
+          <button id="share-github">Post on GitHub (public; needs a GitHub account)</button>
+          <button id="share-email" hidden>Send by email</button>
+        </div>
+      </div>
     </div>
     <div class="panel">
       <h2>Every melody you rated, in Claude's order</h2>
@@ -389,6 +399,26 @@ el("copy").addEventListener("click", () => {
   try {
     navigator.clipboard.writeText(text).then(() => { el("copied").textContent = "Copied."; }, fallback);
   } catch (e) { fallback(); }
+});
+
+// ---------- optional sharing: opens a pre-filled GitHub issue or email; the visitor submits it ----------
+const SHARE_REPO = "https://github.com/AlejCarriero/llm-melody-preferences";
+const SHARE_EMAIL = "";   // set an address here to show the email button
+const SHARE_TITLE = "Listening results";
+function shareName() { return el("share-name").value.trim().replace(/\s+/g, " ") || "anonymous"; }
+function shareBody() {
+  return "Name: " + shareName() + "\n\n```\n" + resultText() + "\n```\n\n" +
+    "Shared from the listening page. I agree that these results may be published in the project's human_listening/ folder.";
+}
+el("share-github").addEventListener("click", () => {
+  const url = SHARE_REPO + "/issues/new?title=" + encodeURIComponent(SHARE_TITLE + " (" + shareName() + ")") +
+    "&body=" + encodeURIComponent(shareBody());
+  window.open(url, "_blank", "noopener");
+});
+if (SHARE_EMAIL) { el("share-email").hidden = false; }
+el("share-email").addEventListener("click", () => {
+  window.location.href = "mailto:" + SHARE_EMAIL + "?subject=" + encodeURIComponent(SHARE_TITLE + " (" + shareName() + ")") +
+    "&body=" + encodeURIComponent(shareBody());
 });
 el("again").addEventListener("click", () => {
   // the finished session stays saved until a new one starts, so the results can be reopened
