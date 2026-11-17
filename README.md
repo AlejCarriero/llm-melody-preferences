@@ -34,9 +34,7 @@ people write about music. So we say its choices are *predicted by* a listener's
 surprise, nothing stronger. One human listener agreed with the model about what is
 dull and what is noise, and disagreed about short loops, which the listener liked and the model didn't.
 
-Full results: [`reports/v2/`](reports/v2/). What we expected beforehand, and every
-later change of plan with its date: [`PREDICTIONS.md`](PREDICTIONS.md). Where the work
-stands and what to do next: [`HANDOVER.md`](HANDOVER.md).
+Full results: [`reports/v2/`](reports/v2/).
 
 ## Do other models agree?
 
