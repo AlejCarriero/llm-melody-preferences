@@ -1,0 +1,71 @@
+# When a visitor shares their results from docs/play.html or docs/listen.html, the page
+# opens a GitHub issue titled "Be the subject results (...)" or "Listening results (...)".
+# This saves a correctly formatted results block from such an issue as a file in
+# human_listening/, commits it, thanks the visitor and closes the issue. Any other issue
+# is left alone. The issue text is untrusted: only the Python script reads it, as data.
+name: Save shared results
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: save-shared-results
+  cancel-in-progress: false
+
+jobs:
+  save:
+    if: startsWith(github.event.issue.title, 'Listening results') || startsWith(github.event.issue.title, 'Be the subject results')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read the issue and write the results file
+        id: save
+        run: python3 .github/scripts/save_shared_result.py
+
+      - name: Commit the file
+        if: steps.save.outputs.saved == 'true'
+        env:
+          RESULT_FILE: ${{ steps.save.outputs.path }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$RESULT_FILE"
+          git commit -m "Add shared results from issue #$ISSUE_NUMBER"
+          git pull --rebase
+          git push
+
+      - name: Thank the visitor and close the issue
+        if: steps.save.outputs.saved == 'true'
+        uses: actions/github-script@v7
+        env:
+          RESULT_FILE: ${{ steps.save.outputs.path }}
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number,
+              body: `Thank you for sharing! Your results are saved in \`${process.env.RESULT_FILE}\`.`,
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number,
+              state: "closed",
+            });
+
+      - name: Explain why nothing was saved
+        if: steps.save.outputs.saved == 'false'
+        uses: actions/github-script@v7
+        env:
+          REASON: ${{ steps.save.outputs.reason }}
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number,
+              body: `Thanks! These results could not be saved automatically (${process.env.REASON}). ` +
+                    "Please share them with the button at the end of the game page, without editing the text.",
+            });
