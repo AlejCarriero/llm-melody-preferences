@@ -1,0 +1,74 @@
+Model: qwen/qwen3.8-27b   (design v2: 60 melodies)
+
+0. DATA QUALITY
+   Choice trials: 720   unusable replies: 0   cut off by the length limit: 0
+   Cost reported for all trials in this file: $0.02
+   Served by: DeepInfra
+
+1. POSITION BIAS
+   Answered 'A' on 53.1% of trials (50% = no bias).
+
+2. ORDER AGREEMENT
+   Pairs shown in both orders: 360
+   Same melody chosen both times: 204 (56.7%)
+   Expected with no preferences, given the position bias: 49.8%
+   Probability of this much agreement by luck: 0.0054
+   -> Choices depend on the melody, not only on the slot.
+
+3. RANKING
+   Most preferred:
+    1. S17 scale_run        +0.73  surprisal 1.29  D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 C4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4
+    2. S49 random_walk      +0.72  surprisal 3.04  G4 E4 A4 E4 D4 G4 E4 G4 C5 D5 E5 E5 C5 A4 G4 A4 G4 A4 E4 G4 C5 E5 E5 D5
+    3. S19 scale_run        +0.66  surprisal 1.39  E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4
+    4. S15 scale_run        +0.66  surprisal 1.38  D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4
+    5. S52 random_walk      +0.65  surprisal 2.97  G4 C5 A4 E4 C4 C4 E4 A4 C5 E5 D5 A4 G4 E4 A4 C5 A4 C5 G4 A4 G4 C5 E5 D5
+    6. S48 random_walk      +0.59  surprisal 2.67  G4 E4 G4 A4 D5 C5 E5 D5 C5 E5 E5 C5 E5 C5 A4 G4 E4 D4 C4 D4 G4 E4 D4 E4
+    7. S16 scale_run        +0.57  surprisal 1.27  C4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 C4 D4 E4 G4 A4 C5 D5 E5 D5 C5
+    8. S22 motif_variation  +0.50  surprisal 1.99  D4 G4 E4 D4 E4 A4 G4 E4 D4 G4 E4 D4 G4 C5 A4 G4 E4 A4 G4 E4 D4 G4 E4 D4
+   Least preferred:
+   53. S09 repeat           -0.51  surprisal 1.04  D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4
+   54. S24 motif_variation  -0.63  surprisal 2.34  D4 G4 C4 D4 E4 A4 D4 E4 D4 G4 C4 D4 G4 C5 E4 G4 E4 A4 D4 E4 D4 G4 E4 D4
+   55. S02 trivial          -0.88  surprisal 0.81  E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4
+   56. S01 trivial          -0.89  surprisal 0.81  D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4
+   57. S04 trivial          -0.95  surprisal 0.81  E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5
+   58. S03 trivial          -1.50  surprisal 0.50  G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4
+   59. S05 trivial          -1.51  surprisal 0.50  D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5
+   60. S00 trivial          -1.72  surprisal 0.50  D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4
+
+   Family averages (with the family's average surprisal):
+   scale_run        +0.50   surprisal 1.63
+   random_walk      +0.39   surprisal 2.81
+   noisy_motif_30   +0.19   surprisal 2.46
+   noisy_motif_50   +0.14   surprisal 2.64
+   random           +0.10   surprisal 3.04
+   motif_surprise   +0.08   surprisal 1.64
+   motif_variation  +0.05   surprisal 2.23
+   noisy_motif_15   +0.01   surprisal 1.96
+   repeat           -0.11   surprisal 1.20
+   trivial          -1.24   surprisal 0.65
+
+4. TRANSITIVITY
+   Circular triples: 2 of 38 (5.3%). Random choices would give about 25%.
+
+5. HYPOTHESES
+   Each account predicts held-out trials. 'bits' is how surprised the account is by
+   the model's real answers: 1.00 = coin flip, lower is better. Differences smaller
+   than the +/- are not meaningful.
+   0.912 +/- 0.022 bits   58% correct   inverted U + learning
+   0.914 +/- 0.024 bits   58% correct   inverted U: a preferred level of surprise
+   0.945 +/- 0.012 bits   60% correct   surprise + learning
+   0.949 +/- 0.013 bits   60% correct   one-way: surprise, sign free
+   0.993 +/- 0.006 bits   53% correct   learning: becomes more predictable
+   1.000 +/- 0.003 bits   53% correct   position only (no preferences)
+
+   Inverted-U fit: preferred surprise level is 2.32 bits (melodies range from 0.50 to 3.05).
+   One-way fit: MORE surprise is preferred.
+   Note: in these melodies surprise and uncertainty are almost the same quantity
+   (correlation 0.95), so this design cannot tell them apart.
+
+6. SELF-KNOWLEDGE
+   (No 'predict' trials yet.)
+
+   Thinking: average 0 tokens per choice.
+   Rank correlation between thinking length and how far apart the two melodies
+   are in the ranking: +nan   (negative = longer on close calls)

@@ -1,0 +1,25 @@
+########## Comparison pilots started 2026-11-16 21:40:39
+
+=== google/gemini-4-carbon  (host google-vertex/global, reasoning effort low, limit 1000, 20 trials) started 2026-11-16 21:40:39
+Mode: choose. 720 trials in total, 700 already done or not selected, running 20 now -> results\v2\google_gemini-4-carbon.jsonl
+  20/20   spent so far: $0.01
+Done. Spent in this run: $0.01
+
+=== deepseek/deepseek-v4-pro-0813  (host deepseek, reasoning effort none, limit 1000, 20 trials) started 2026-11-16 21:41:46
+Mode: choose. 720 trials in total, 700 already done or not selected, running 20 now -> results\v2\deepseek_deepseek-v4-pro-0813.jsonl
+  failed choose-4-55-0: refused, not retried: status 404, says: {"error":{"message":"No endpoints found for deepseek/deepseek-v4-pro-0813. Every candidate endpoint was removed during routing: Filter by Tier Endpoint Rows removed deepinfra/fp8/flex (Excluded tier endpoint rows the request did not opt into); Filter by Guardrails removed deepseek (Paid model traini
+  failed choose-53-7-0: refused, not retried: status 404, says: {"error":{"message":"No endpoints found for deepseek/deepseek-v4-pro-0813. Every candidate endpoint was removed during routing: Filter by Tier Endpoint Rows removed deepinfra/fp8/flex (Excluded tier endpoint rows the request did not opt into); Filter by Guardrails removed deepseek (Paid model traini
+  failed choose-37-49-0: refused, not retried: status 404, says: {"error":{"message":"No endpoints found for deepseek/deepseek-v4-pro-0813. Every candidate endpoint was removed during routing: Filter by Tier Endpoint Rows removed deepinfra/fp8/flex (Excluded tier endpoint rows the request did not opt into); Filter by Guardrails removed deepseek (Paid model traini
+Stopped early after 3 failed requests; the errors are printed above. Finished trials are saved. Run the same command again to carry on.
+
+=== qwen/qwen3.8-27b  (host deepinfra/bf16, reasoning effort none, limit 1000, 20 trials) started 2026-11-16 21:41:49
+Mode: choose. 720 trials in total, 700 already done or not selected, running 20 now -> results\v2\qwen_qwen3.8-27b.jsonl
+  20/20   spent so far: $0.00
+Done. Spent in this run: $0.00
+
+=== openai/gpt-6-luna  (host openai, reasoning effort none, limit 1000, 20 trials) started 2026-11-16 21:42:13
+Mode: choose. 720 trials in total, 700 already done or not selected, running 20 now -> results\v2\openai_gpt-6-luna.jsonl
+  20/20   spent so far: $0.00
+Done. Spent in this run: $0.00
+
+PILOTS FINISHED 2026-11-16 21:42:48
