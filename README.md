@@ -1,4 +1,4 @@
-# Does Claude have stable melody preferences?
+# Do LLMs have stable melody preferences?
 
 Many fresh copies of a language model are each shown two short melodies, written as
 note names, and asked which one they prefer. Every copy starts a brand-new conversation,
