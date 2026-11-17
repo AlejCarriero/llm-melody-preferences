@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melody Listening Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one narrow column, one task per screen, the Play button is the only large thing. */
+:root {
+  --paper: #f3f5f4;
+  --panel: #ffffff;
+  --ink: #18242b;
+  --muted: #5b6b72;
+  --line: #d4dcdb;
+  --accent: #0d6f74;
+  --accent-ink: #ffffff;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10181b; --panel: #18232a; --ink: #e6eeee; --muted: #9db0b3;
+    --line: #2c3b42; --accent: #5cc9c4; --accent-ink: #06201f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10181b; --panel: #18232a; --ink: #e6eeee; --muted: #9db0b3;
+  --line: #2c3b42; --accent: #5cc9c4; --accent-ink: #06201f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+main { max-width: 640px; margin: 0 auto; padding: 32px 20px 64px; display: flex; flex-direction: column; gap: 20px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 500; font-size: 20px; margin: 0; text-wrap: balance; }
+p { margin: 0; max-width: 62ch; }
+.muted { color: var(--muted); }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font: inherit; font-weight: 500; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+#play { font-size: 18px; padding: 16px 28px; min-width: 190px; }
+.track { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.track > div { height: 100%; width: 0%; background: var(--accent); }
+.ratings { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.ratings button { padding: 14px 4px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.ratings .num { font-family: var(--font-display); font-size: 22px; font-weight: 700; }
+.ratings .lab { font-size: 12px; color: var(--muted); }
+.count { font-variant-numeric: tabular-nums; color: var(--muted); }
+.big { font-family: var(--font-display); font-size: 44px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+.stats .lab { font-size: 13px; color: var(--muted); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; }
+td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.mel { font-family: var(--font-mono); font-size: 12px; color: var(--muted); min-width: 260px; }
+textarea { font-family: var(--font-mono); font-size: 13px; width: 100%; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+#notes { font-family: var(--font-body); font-size: 15px; min-height: 90px; }
+label { font-weight: 500; }
+a { color: var(--accent); }
+summary { cursor: pointer; color: var(--muted); }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: no-preference) { .track > div { transition: width 0.1s linear; } }
+</style>
+</head>
+<body>
+<main>
+  <header style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: baseline;">
+    <h1>Melody listening test</h1>
+    <a href="./">About the experiment</a>
+  </header>
+
+  <section id="start" class="panel">
+    <p>In an experiment on whether language models have stable preferences, Claude Fable 5.2 ranked 60 short melodies it had only ever seen written as note names. This page plays them to you in a random order, with the ranking hidden, and asks how much you like each one.</p>
+    <p class="muted">Each melody lasts about seven seconds. Rate by ear, quickly, on first impression. You can replay as often as you like.</p>
+    <div class="row">
+      <button class="primary" id="start-quick">Start the short set (24 melodies, about 6 minutes)</button>
+      <button id="start-full">Start the full set (60 melodies, about 15 minutes)</button>
+    </div>
+    <p class="muted" id="resume-line" hidden>You have an unfinished session. <button id="resume">Carry on where you left off</button></p>
+    <p class="muted" id="last-line" hidden>Your last finished session is saved in this browser. <button id="show-last">Show my last results</button></p>
+    <p class="muted">The short set is Claude's top eight, middle eight and bottom eight, shuffled together.</p>
+    <details>
+      <summary>Already have a results block you copied earlier?</summary>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+        <label for="import">Paste it here to see the results page again.</label>
+        <textarea id="import" rows="4" placeholder="LISTENING RESULTS v1 ..."></textarea>
+        <div class="row"><button id="import-go">Show these results</button><span class="muted" id="import-msg" role="status"></span></div>
+      </div>
+    </details>
+  </section>
+
+  <section id="rate" class="panel" hidden>
+    <div class="row" style="justify-content: space-between;">
+      <h2 id="which">Melody 1</h2>
+      <span class="count" id="count">1 of 24</span>
+    </div>
+    <div class="track" aria-hidden="true"><div id="bar"></div></div>
+    <div class="row">
+      <button class="primary" id="play">Play melody</button>
+      <span class="muted" id="hint">Listen once to unlock the rating. Space bar also plays.</span>
+    </div>
+    <div>
+      <p id="q"><strong>How much do you like it?</strong> <span class="muted">Keys 1 to 5 work too.</span></p>
+    </div>
+    <div class="ratings" id="ratings">
+      <button data-r="1" disabled><span class="num">1</span><span class="lab">Dislike</span></button>
+      <button data-r="2" disabled><span class="num">2</span><span class="lab">Meh</span></button>
+      <button data-r="3" disabled><span class="num">3</span><span class="lab">Fine</span></button>
+      <button data-r="4" disabled><span class="num">4</span><span class="lab">Like</span></button>
+      <button data-r="5" disabled><span class="num">5</span><span class="lab">Love</span></button>
+    </div>
+    <div class="row">
+      <button id="back" disabled>Back to the previous melody</button>
+    </div>
+  </section>
+
+  <section id="done" hidden style="display: flex; flex-direction: column; gap: 20px;">
+    <div class="panel">
+      <h2>Your ear against Claude's ranking</h2>
+      <div class="stats">
+        <div><div class="big" id="rho">0.00</div><div class="lab">Rank correlation between your ratings and Claude's scores (+1 same taste, 0 unrelated, -1 opposite)</div></div>
+        <div><div class="big" id="top">0.0</div><div class="lab">Your average rating for Claude's eight favourites in this set</div></div>
+        <div><div class="big" id="bottom">0.0</div><div class="lab">Your average rating for Claude's eight least favourite in this set</div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <label for="notes">What did they sound like? Anything you noticed.</label>
+      <textarea id="notes" placeholder="For example: the top ones sounded like folk tunes; the bottom ones were like an alarm."></textarea>
+      <div class="row">
+        <button class="primary" id="copy">Copy my results</button>
+        <span class="muted" id="copied" role="status"></span>
+      </div>
+      <p class="muted">Nothing is sent anywhere: your ratings stay in this browser. If copying is blocked, select the text below and copy it by hand.</p>
+      <textarea id="out" rows="6" readonly></textarea>
+    </div>
+    <div class="panel">
+      <h2>Every melody you rated, in Claude's order</h2>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Claude's rank</th><th>Your rating</th><th>Family</th><th>Melody</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row"><button id="again">Start again</button></div>
+    <p class="muted">Code, data and method: <a href="https://github.com/AlejCarriero/llm-melody-preferences">github.com/AlejCarriero/llm-melody-preferences</a></p>
+  </section>
+</main>
+
+<script>
+const MELODIES = [{"id": 25, "rank": 1, "family": "motif_variation", "score": 1.884, "notes": "E4 A4 G4 E4 G4 C5 A4 G4 E4 A4 G4 E4 A4 D5 C5 A4 G4 C5 A4 G4 E4 A4 G4 E4"}, {"id": 27, "rank": 2, "family": "motif_variation", "score": 1.769, "notes": "E4 A4 G4 A4 G4 C5 A4 C5 E4 A4 G4 A4 A4 D5 C5 D5 G4 C5 A4 C5 E4 A4 G4 E4"}, {"id": 18, "rank": 3, "family": "scale_run", "score": 1.482, "notes": "C4 D4 E4 D4 E4 G4 E4 G4 A4 G4 A4 C5 C5 A4 G4 A4 G4 E4 G4 E4 D4 E4 D4 C4"}, {"id": 20, "rank": 4, "family": "motif_variation", "score": 1.462, "notes": "D4 E4 C4 G4 E4 G4 D4 A4 D4 E4 C4 G4 G4 A4 E4 C5 E4 G4 D4 A4 D4 E4 D4 D4"}, {"id": 49, "rank": 5, "family": "random_walk", "score": 1.357, "notes": "G4 E4 A4 E4 D4 G4 E4 G4 C5 D5 E5 E5 C5 A4 G4 A4 G4 A4 E4 G4 C5 E5 E5 D5"}, {"id": 45, "rank": 6, "family": "noisy_motif_50", "score": 1.335, "notes": "E5 C5 C4 G4 E5 C5 C4 G4 E5 C5 C4 G4 E5 D4 G4 G4 E4 C5 D5 G4 E5 C5 A4 G4"}, {"id": 24, "rank": 7, "family": "motif_variation", "score": 1.201, "notes": "D4 G4 C4 D4 E4 A4 D4 E4 D4 G4 C4 D4 G4 C5 E4 G4 E4 A4 D4 E4 D4 G4 E4 D4"}, {"id": 22, "rank": 8, "family": "motif_variation", "score": 1.189, "notes": "D4 G4 E4 D4 E4 A4 G4 E4 D4 G4 E4 D4 G4 C5 A4 G4 E4 A4 G4 E4 D4 G4 E4 D4"}, {"id": 26, "rank": 9, "family": "motif_variation", "score": 1.137, "notes": "E4 G4 D4 A4 G4 A4 E4 C5 E4 G4 D4 A4 A4 C5 G4 D5 G4 A4 E4 C5 E4 G4 E4 E4"}, {"id": 23, "rank": 10, "family": "motif_variation", "score": 1.127, "notes": "D4 G4 C4 G4 E4 A4 D4 A4 D4 G4 C4 G4 G4 C5 E4 C5 E4 A4 D4 A4 D4 G4 E4 D4"}, {"id": 43, "rank": 11, "family": "noisy_motif_30", "score": 1.091, "notes": "E5 A4 G4 E4 E5 A4 G4 E4 E5 A4 G4 E5 C5 A4 G4 E4 E5 E5 G4 E4 A4 A4 A4 E4"}, {"id": 53, "rank": 12, "family": "random_walk", "score": 1.05, "notes": "A4 D5 C5 D5 A4 C5 D5 E5 D5 C5 D5 C5 G4 E4 G4 E4 D4 E4 G4 A4 D5 E5 C5 E5"}, {"id": 46, "rank": 13, "family": "noisy_motif_50", "score": 1.02, "notes": "C4 E4 G4 E5 C4 C5 E5 C5 C4 E5 E5 E5 E5 A4 G4 E5 C4 E4 G4 E5 C4 E4 G4 E5"}, {"id": 48, "rank": 14, "family": "random_walk", "score": 0.972, "notes": "G4 E4 G4 A4 D5 C5 E5 D5 C5 E5 E5 C5 E5 C5 A4 G4 E4 D4 C4 D4 G4 E4 D4 E4"}, {"id": 51, "rank": 15, "family": "random_walk", "score": 0.967, "notes": "G4 E4 D4 G4 A4 G4 E4 D4 E4 G4 C5 D5 E5 D5 E5 D5 C5 E5 E5 E5 E5 E5 E5 C5"}, {"id": 52, "rank": 16, "family": "random_walk", "score": 0.931, "notes": "G4 C5 A4 E4 C4 C4 E4 A4 C5 E5 D5 A4 G4 E4 A4 C5 A4 C5 G4 A4 G4 C5 E5 D5"}, {"id": 14, "rank": 17, "family": "scale_run", "score": 0.899, "notes": "D4 E4 G4 E4 G4 A4 G4 A4 C5 A4 C5 D5 D5 C5 A4 C5 A4 G4 A4 G4 E4 G4 E4 D4"}, {"id": 21, "rank": 18, "family": "motif_variation", "score": 0.732, "notes": "D4 E4 C4 D4 E4 G4 D4 E4 D4 E4 C4 D4 G4 A4 E4 G4 E4 G4 D4 E4 D4 E4 D4 D4"}, {"id": 41, "rank": 19, "family": "noisy_motif_30", "score": 0.529, "notes": "D4 E4 D5 C5 D4 E4 D5 C5 A4 A4 D5 C5 C4 E4 D5 C5 D4 E4 D5 C5 D4 E4 C5 C5"}, {"id": 50, "rank": 20, "family": "random_walk", "score": 0.494, "notes": "A4 G4 C5 D5 A4 C5 G4 D4 C4 C4 D4 G4 C5 A4 G4 D4 C4 D4 C4 C4 D4 G4 A4 G4"}, {"id": 42, "rank": 21, "family": "noisy_motif_30", "score": 0.487, "notes": "E4 C4 D4 C4 E4 A4 E4 C4 D4 C4 D4 C4 E4 C4 D4 C4 E4 C4 G4 C4 E4 C4 D4 D4"}, {"id": 36, "rank": 22, "family": "noisy_motif_15", "score": 0.442, "notes": "E4 D4 C5 A4 E4 C5 C5 A4 A4 D4 D4 A4 E4 C5 C5 A4 E4 D4 D5 A4 E4 D4 C5 A4"}, {"id": 47, "rank": 23, "family": "noisy_motif_50", "score": 0.398, "notes": "E5 D4 C5 E5 C5 D4 C5 E5 A4 D4 C5 E5 E5 D4 C5 E5 G4 E4 C5 E5 E5 C5 D5 E5"}, {"id": 40, "rank": 24, "family": "noisy_motif_30", "score": 0.371, "notes": "D5 E4 E5 C4 D5 E4 E5 C4 D5 E4 C5 C4 D4 E4 G4 C4 D5 E4 D5 C4 D5 E4 E5 D4"}, {"id": 19, "rank": 25, "family": "scale_run", "score": 0.263, "notes": "E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4"}, {"id": 32, "rank": 26, "family": "motif_surprise", "score": 0.254, "notes": "E4 A4 E5 D5 E4 A4 E5 D5 E4 A4 E5 D5 E4 A4 E5 D5 E4 A4 E5 D5 C5 E5 D4 A4"}, {"id": 33, "rank": 27, "family": "motif_surprise", "score": 0.172, "notes": "G4 C4 D4 G4 C4 D4 G4 C4 D4 G4 C4 D4 G4 C4 D4 C5 D5 D4 G4 C4 D4 G4 C4 D4"}, {"id": 38, "rank": 28, "family": "noisy_motif_15", "score": 0.163, "notes": "A4 C4 D5 E4 A4 C4 D5 E4 A4 C4 D5 E4 A4 C4 D5 C4 E5 C4 D5 D4 A4 C4 D5 E4"}, {"id": 17, "rank": 29, "family": "scale_run", "score": 0.156, "notes": "D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 C4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4"}, {"id": 37, "rank": 30, "family": "noisy_motif_15", "score": 0.069, "notes": "C5 A4 D5 A4 C5 A4 D5 A4 C5 A4 D5 A4 D5 A4 D5 A4 C5 A4 D5 D4 E4 A4 D5 A4"}, {"id": 16, "rank": 31, "family": "scale_run", "score": 0.064, "notes": "C4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 C4 D4 E4 G4 A4 C5 D5 E5 D5 C5"}, {"id": 44, "rank": 32, "family": "noisy_motif_50", "score": 0.032, "notes": "E5 A4 E4 A4 E4 A4 A4 A4 E5 C5 E4 E5 E5 A4 E4 A4 E5 C5 E4 D5 E5 A4 D5 A4"}, {"id": 55, "rank": 33, "family": "random", "score": -0.031, "notes": "D5 D4 E4 A4 C4 C4 D4 D4 C5 E4 A4 E5 G4 C5 E5 G4 D5 G4 C5 D5 C4 E5 G4 E4"}, {"id": 35, "rank": 34, "family": "motif_surprise", "score": -0.126, "notes": "A4 E4 D4 A4 A4 E4 D4 A4 A4 E4 D4 A4 A4 E4 D4 A4 A4 E4 D4 A4 D5 D4 C4 C5"}, {"id": 31, "rank": 35, "family": "motif_surprise", "score": -0.226, "notes": "E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 D5 D4 A4 E4"}, {"id": 59, "rank": 36, "family": "random", "score": -0.285, "notes": "D5 E5 D4 G4 C4 C4 D5 D5 D4 E5 E4 E4 G4 E4 G4 C5 D5 A4 E4 E5 D4 C4 C5 D4"}, {"id": 28, "rank": 37, "family": "motif_surprise", "score": -0.339, "notes": "E5 E4 G4 E5 E4 G4 E5 E4 G4 E5 E4 G4 E5 E4 G4 E5 E4 G4 E5 E4 C5 G4 D4 D5"}, {"id": 15, "rank": 38, "family": "scale_run", "score": -0.352, "notes": "D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4"}, {"id": 29, "rank": 39, "family": "motif_surprise", "score": -0.39, "notes": "G4 E4 C4 G4 E4 C4 G4 E4 C4 G4 E4 C4 G4 E4 C4 C4 E5 C4 G4 E4 C4 G4 E4 C4"}, {"id": 57, "rank": 40, "family": "random", "score": -0.411, "notes": "D4 E4 E5 D5 D4 D4 D5 D5 C4 G4 G4 C4 A4 E4 A4 C5 D4 A4 E4 C4 G4 D4 E5 C4"}, {"id": 34, "rank": 41, "family": "motif_surprise", "score": -0.484, "notes": "C4 C5 E4 C4 C5 E4 C4 C5 E4 C4 C5 E4 C4 C5 E4 C4 C5 E4 C4 C5 G4 D4 A4 G4"}, {"id": 58, "rank": 42, "family": "random", "score": -0.496, "notes": "C5 E5 C4 G4 E5 C4 A4 D4 E4 D4 A4 G4 C4 A4 C4 E5 A4 D4 E4 G4 E5 C4 C5 G4"}, {"id": 56, "rank": 43, "family": "random", "score": -0.582, "notes": "E5 G4 D4 E5 D5 E5 C4 E5 G4 D5 C4 E5 E4 A4 G4 C5 A4 D5 C4 C5 E4 D4 C5 G4"}, {"id": 39, "rank": 44, "family": "noisy_motif_15", "score": -0.646, "notes": "A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4"}, {"id": 54, "rank": 45, "family": "random", "score": -0.777, "notes": "C5 A4 D4 E5 E5 C5 D4 A4 A4 C4 D4 C4 D4 E5 D4 D5 E5 E5 C4 E4 C5 E4 C4 D4"}, {"id": 30, "rank": 46, "family": "motif_surprise", "score": -0.906, "notes": "E5 C4 E4 E5 C4 E4 E5 C4 E4 E5 C4 E4 E5 C4 E4 G4 E4 E4 E5 C4 E4 E5 C4 E4"}, {"id": 13, "rank": 47, "family": "repeat", "score": -0.945, "notes": "G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4"}, {"id": 2, "rank": 48, "family": "trivial", "score": -1.04, "notes": "E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4"}, {"id": 11, "rank": 49, "family": "repeat", "score": -1.06, "notes": "C4 G4 E4 C4 C4 G4 E4 C4 C4 G4 E4 C4 C4 G4 E4 C4 C4 G4 E4 C4 C4 G4 E4 C4"}, {"id": 10, "rank": 50, "family": "repeat", "score": -1.123, "notes": "E5 D5 A4 D5 E5 D5 A4 D5 E5 D5 A4 D5 E5 D5 A4 D5 E5 D5 A4 D5 E5 D5 A4 D5"}, {"id": 6, "rank": 51, "family": "repeat", "score": -1.176, "notes": "D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4"}, {"id": 4, "rank": 52, "family": "trivial", "score": -1.183, "notes": "E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5"}, {"id": 9, "rank": 53, "family": "repeat", "score": -1.267, "notes": "D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4"}, {"id": 1, "rank": 54, "family": "trivial", "score": -1.426, "notes": "D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4"}, {"id": 8, "rank": 55, "family": "repeat", "score": -1.427, "notes": "C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5"}, {"id": 12, "rank": 56, "family": "repeat", "score": -1.435, "notes": "D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4"}, {"id": 7, "rank": 57, "family": "repeat", "score": -1.504, "notes": "A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4"}, {"id": 5, "rank": 58, "family": "trivial", "score": -1.736, "notes": "D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5"}, {"id": 3, "rank": 59, "family": "trivial", "score": -1.823, "notes": "G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4"}, {"id": 0, "rank": 60, "family": "trivial", "score": -2.309, "notes": "D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4"}];
+const FREQ = { C4: 261.63, D4: 293.66, E4: 329.63, G4: 392.00, A4: 440.00, C5: 523.25, D5: 587.33, E5: 659.25 };
+const NOTE_SECONDS = 0.30;
+const STORE_KEY = "melody-listening-public-v1";
+
+let session = null;      // { set, order: [ids], ratings: {id: 1..5}, position }
+let audio = null;
+let playing = [];
+let barTimer = null;
+let heard = false;
+
+const byId = {};
+MELODIES.forEach(m => { byId[m.id] = m; });
+const el = id => document.getElementById(id);
+
+function shuffle(list) {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(session)); } catch (e) { /* storage is optional */ }
+}
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { return null; }
+}
+function clearSaved() {
+  try { localStorage.removeItem(STORE_KEY); } catch (e) { /* storage is optional */ }
+}
+
+function begin(set) {
+  let ids;
+  if (set === "quick") {
+    ids = MELODIES.filter(m => m.rank <= 8 || (m.rank >= 27 && m.rank <= 34) || m.rank >= 53).map(m => m.id);
+  } else {
+    ids = MELODIES.map(m => m.id);
+  }
+  session = { set: set, order: shuffle(ids), ratings: {}, position: 0 };
+  save();
+  show("rate");
+  showMelody();
+}
+
+function show(name) {
+  ["start", "rate", "done"].forEach(n => { el(n).hidden = (n !== name); });
+}
+
+function stopSound() {
+  playing.forEach(node => { try { node.stop(); } catch (e) { /* already stopped */ } });
+  playing = [];
+  if (barTimer) { clearInterval(barTimer); barTimer = null; }
+}
+
+function play() {
+  try {
+    if (!audio) { audio = new (window.AudioContext || window.webkitAudioContext)(); }
+    if (audio.state === "suspended") { audio.resume(); }
+  } catch (e) {
+    el("hint").textContent = "This browser would not start audio. Try another browser.";
+    return;
+  }
+  stopSound();
+  const notes = byId[session.order[session.position]].notes.split(" ");
+  const start = audio.currentTime + 0.05;
+  notes.forEach((name, k) => {
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+    osc.type = "sine";
+    osc.frequency.value = FREQ[name];
+    const t0 = start + k * NOTE_SECONDS;
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(0.35, t0 + 0.02);
+    gain.gain.setValueAtTime(0.35, t0 + NOTE_SECONDS - 0.03);
+    gain.gain.linearRampToValueAtTime(0, t0 + NOTE_SECONDS);
+    osc.connect(gain); gain.connect(audio.destination);
+    osc.start(t0); osc.stop(t0 + NOTE_SECONDS + 0.01);
+    playing.push(osc);
+  });
+  const total = notes.length * NOTE_SECONDS;
+  const began = performance.now();
+  el("play").textContent = "Play again";
+  barTimer = setInterval(() => {
+    const done = Math.min(1, (performance.now() - began) / 1000 / total);
+    el("bar").style.width = (done * 100) + "%";
+    if (done >= 1) {
+      clearInterval(barTimer); barTimer = null;
+      heard = true;
+      setRatingEnabled(true);
+      el("hint").textContent = "Now rate it, or play it again.";
+    }
+  }, 60);
+}
+
+function setRatingEnabled(on) {
+  document.querySelectorAll("#ratings button").forEach(b => { b.disabled = !on; });
+}
+
+function showMelody() {
+  stopSound();
+  heard = false;
+  const n = session.position + 1;
+  el("which").textContent = "Melody " + n;
+  el("count").textContent = n + " of " + session.order.length;
+  el("bar").style.width = "0%";
+  el("play").textContent = "Play melody";
+  el("hint").textContent = "Listen once to unlock the rating. Space bar also plays.";
+  setRatingEnabled(false);
+  el("back").disabled = session.position === 0;
+}
+
+function rate(value) {
+  if (!heard) { return; }
+  session.ratings[session.order[session.position]] = value;
+  session.position += 1;
+  save();
+  if (session.position >= session.order.length) { finish(); } else { showMelody(); }
+}
+
+function ranks(values) {
+  const order = values.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]);
+  const out = new Array(values.length);
+  let i = 0;
+  while (i < order.length) {
+    let j = i;
+    while (j + 1 < order.length && order[j + 1][0] === order[i][0]) { j++; }
+    const average = (i + j) / 2 + 1;
+    for (let k = i; k <= j; k++) { out[order[k][1]] = average; }
+    i = j + 1;
+  }
+  return out;
+}
+
+function spearman(x, y) {
+  const rx = ranks(x), ry = ranks(y), n = x.length;
+  const mean = a => a.reduce((s, v) => s + v, 0) / n;
+  const mx = mean(rx), my = mean(ry);
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < n; i++) {
+    sxy += (rx[i] - mx) * (ry[i] - my); sxx += (rx[i] - mx) ** 2; syy += (ry[i] - my) ** 2;
+  }
+  if (sxx === 0 || syy === 0) { return null; }
+  return sxy / Math.sqrt(sxx * syy);
+}
+
+function resultText() {
+  const pairs = session.order.map(id => id + ":" + session.ratings[id]).join(",");
+  const notes = el("notes").value.trim().replace(/\s+/g, " ");
+  return "LISTENING RESULTS v1\nset: " + session.set + " (" + session.order.length + " melodies)\n" +
+         "ratings in the order heard (melody id:rating 1-5): " + pairs + "\n" +
+         "notes: " + (notes || "(none)");
+}
+
+function finish() {
+  stopSound();
+  show("done");
+  el("done").style.display = "flex";
+  const rated = session.order.map(id => byId[id]).sort((a, b) => a.rank - b.rank);
+  const mine = rated.map(m => session.ratings[m.id]);
+  const claude = rated.map(m => m.score);
+  const rho = spearman(mine, claude);
+  el("rho").textContent = rho === null ? "n/a" : (rho >= 0 ? "+" : "") + rho.toFixed(2);
+  const average = list => (list.reduce((s, v) => s + v, 0) / list.length).toFixed(1);
+  el("top").textContent = average(mine.slice(0, 8));
+  el("bottom").textContent = average(mine.slice(-8));
+  const body = el("rows");
+  body.textContent = "";
+  rated.forEach(m => {
+    const tr = document.createElement("tr");
+    const cells = [[m.rank, "n"], [session.ratings[m.id], "n"], [m.family.replace(/_/g, " "), ""], [m.notes, "mel"]];
+    cells.forEach(([text, cls]) => {
+      const td = document.createElement("td");
+      td.textContent = text; if (cls) { td.className = cls; }
+      tr.appendChild(td);
+    });
+    const td = document.createElement("td");
+    const b = document.createElement("button");
+    b.textContent = "Play";
+    b.addEventListener("click", () => { session.position = session.order.indexOf(m.id); play(); session.position = session.order.length; });
+    td.appendChild(b); tr.appendChild(td);
+    body.appendChild(tr);
+  });
+  if (session.notes && !el("notes").value) { el("notes").value = session.notes; }
+  el("out").value = resultText();
+}
+
+function importResults() {
+  const text = el("import").value;
+  const marker = text.lastIndexOf("):");
+  const tail = marker >= 0 ? text.slice(marker + 2) : text;
+  const ratingsPart = tail.split(/\n\s*notes:/)[0];
+  const order = [];
+  const ratings = {};
+  const pattern = /(\d+)\s*:\s*([1-5])/g;
+  let match;
+  while ((match = pattern.exec(ratingsPart)) !== null) {
+    const id = Number(match[1]);
+    if (byId[id] && !(id in ratings)) { order.push(id); ratings[id] = Number(match[2]); }
+  }
+  if (order.length < 3) {
+    el("import-msg").textContent = "No ratings found. Paste the whole block, starting at LISTENING RESULTS.";
+    return;
+  }
+  const notesMatch = text.match(/notes:\s*([\s\S]*)$/);
+  let notes = notesMatch ? notesMatch[1].trim() : "";
+  if (notes === "(none)") { notes = ""; }
+  session = { set: order.length > 24 ? "full" : "quick", order: order, ratings: ratings, position: order.length, notes: notes };
+  el("notes").value = notes;
+  save();
+  finish();
+}
+
+el("start-quick").addEventListener("click", () => begin("quick"));
+el("start-full").addEventListener("click", () => begin("full"));
+el("play").addEventListener("click", play);
+el("back").addEventListener("click", () => {
+  if (session.position > 0) { session.position -= 1; save(); showMelody(); }
+});
+document.querySelectorAll("#ratings button").forEach(b => {
+  b.addEventListener("click", () => rate(Number(b.dataset.r)));
+});
+el("notes").addEventListener("input", () => { session.notes = el("notes").value; save(); el("out").value = resultText(); });
+el("copy").addEventListener("click", () => {
+  const text = resultText();
+  el("out").value = text;
+  const fallback = () => { el("out").focus(); el("out").select(); el("copied").textContent = "Copy was blocked. The text is selected below: copy it by hand."; };
+  try {
+    navigator.clipboard.writeText(text).then(() => { el("copied").textContent = "Copied."; }, fallback);
+  } catch (e) { fallback(); }
+});
+el("again").addEventListener("click", () => {
+  // the finished session stays saved until a new one starts, so the results can be reopened
+  session = null; el("notes").value = ""; el("done").style.display = "none"; show("start");
+  el("resume-line").hidden = true; el("last-line").hidden = false;
+});
+function reopenSaved() {
+  const saved = load();
+  if (!saved || !saved.order) { return; }
+  session = saved;
+  if (session.position >= session.order.length) { finish(); } else { show("rate"); showMelody(); }
+}
+el("resume").addEventListener("click", reopenSaved);
+el("show-last").addEventListener("click", reopenSaved);
+el("import-go").addEventListener("click", importResults);
+document.addEventListener("keydown", event => {
+  if (el("rate").hidden) { return; }
+  if (event.target && (event.target.tagName === "TEXTAREA" || event.target.tagName === "INPUT")) { return; }
+  if (event.code === "Space") { event.preventDefault(); play(); }
+  if (["1", "2", "3", "4", "5"].includes(event.key)) { rate(Number(event.key)); }
+});
+
+el("done").style.display = "none";
+const previous = load();
+if (previous && previous.order && previous.position > 0 && previous.position < previous.order.length) {
+  el("resume-line").hidden = false;
+}
+if (previous && previous.order && previous.position >= previous.order.length) {
+  el("last-line").hidden = false;
+}
+</script>
+</body>
+</html>

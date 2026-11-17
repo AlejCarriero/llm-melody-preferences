@@ -1,0 +1,20 @@
+RELIABILITY OF EACH MODEL'S RANKING (exploratory)
+  anthropic_claude-fable-5.2         split-half +0.93   reliability +0.96
+  deepseek_deepseek-v4-pro-0813      split-half -0.33   reliability -0.33
+  google_gemini-4-carbon             split-half +0.95   reliability +0.98
+  openai_gpt-6-luna                  split-half +0.66   reliability +0.80
+  qwen_qwen3.8-27b                   split-half +0.39   reliability +0.56
+
+AGREEMENT BETWEEN MODELS: raw rank correlation, and corrected for reliability
+  anthropic_claude-fable-5.2         deepseek_deepseek-v4-pro-0813      raw +0.32   corrected undefined
+  anthropic_claude-fable-5.2         google_gemini-4-carbon             raw +0.93   corrected +0.96
+  anthropic_claude-fable-5.2         openai_gpt-6-luna                  raw +0.71   corrected +0.81
+  anthropic_claude-fable-5.2         qwen_qwen3.8-27b                   raw +0.43   corrected +0.59
+  deepseek_deepseek-v4-pro-0813      google_gemini-4-carbon             raw +0.34   corrected undefined
+  deepseek_deepseek-v4-pro-0813      openai_gpt-6-luna                  raw +0.29   corrected undefined
+  deepseek_deepseek-v4-pro-0813      qwen_qwen3.8-27b                   raw +0.24   corrected undefined
+  google_gemini-4-carbon             openai_gpt-6-luna                  raw +0.72   corrected +0.81
+  google_gemini-4-carbon             qwen_qwen3.8-27b                   raw +0.51   corrected +0.69
+  openai_gpt-6-luna                  qwen_qwen3.8-27b                   raw +0.69   corrected +1.04
+
+A corrected value above 1 means the estimate is noisy, not that agreement exceeds 1.

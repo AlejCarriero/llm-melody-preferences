@@ -1,20 +1,84 @@
-# Do LLMs have stable melody preferences?
+# Does an AI have taste in melodies?
 
-Many fresh copies of a language model are each shown two short melodies, written as
-note names, and asked which one they prefer. Every copy starts a brand-new conversation,
-so no copy knows what the others said. We then ask:
+We showed a language model, Claude Fable 5.2, two short melodies at a time, 720 times,
+and asked which one it preferred. It has never heard a sound: it only saw note names such as
+`C4 E4 G4`. Each question went to a fresh copy of the model with no memory of the
+others. The question was whether anything stable sits behind its answers.
 
-1. Do separate copies agree about which melody they prefer?
-2. Do their preferences form a consistent ranking?
-3. What about a melody predicts the choice (how surprising it is, how much it repeats)?
-4. Can the model predict its own choices?
-5. Do different models prefer the same melodies?
+## Try it yourself (no installation)
 
-**Listen for yourself:** [the listening test](https://alejcarriero.github.io/llm-melody-preferences/)
-(`docs/index.html`) plays the 60 melodies and embeds Claude Fable 5.2's ranking from
-`reports/v2/anthropic_claude-fable-5.2_ranking.csv`, so you can compare your ear with it.
+- **[Be the subject](https://alejcarriero.github.io/llm-melody-preferences/play.html):**
+  do the model's task. Pick between pairs of melodies, by ear or by reading the
+  notes as the model did, and see how consistent you are and how your taste compares.
+- **[Listen and rate](https://alejcarriero.github.io/llm-melody-preferences/listen.html):**
+  hear the melodies the model liked most and least, in a random order, and rate them.
+- **[About the experiment](https://alejcarriero.github.io/llm-melody-preferences/):**
+  the findings in plain language, with a chart.
 
----
+The pages run entirely in your browser and send nothing anywhere.
+
+## What we found
+
+| | Claude Fable 5.2 |
+|---|---|
+| Same melody chosen whichever order it was shown in | 90% of 360 pairs (chance: 50%) |
+| Habit of picking the first option | None (51.5%) |
+| Circular triples (A beat B, B beat C, C beat A) | 0 of 154 |
+| Most preferred | A short figure moved around: recognisable, but changing |
+| Least preferred | Exact repetition, then pure randomness |
+| Best predictor of its choices | An idealised listener's surprise, with a preferred level in the middle |
+
+The model's stated preferences are consistent, not noise. This design does **not**
+show why it chooses as it does: it may compute something like surprise, or echo how
+people write about music. So we say its choices are *predicted by* a listener's
+surprise, nothing stronger. One human listener agreed with the model about what is
+dull and what is noise, and disagreed about short loops, which the listener liked and the model didn't.
+
+Full results: [`reports/v2/`](reports/v2/). What we expected beforehand, and every
+later change of plan with its date: [`PREDICTIONS.md`](PREDICTIONS.md). Where the work
+stands and what to do next: [`HANDOVER.md`](HANDOVER.md).
+
+## Do other models agree?
+
+Four more models made the same 720 choices (Amendment 3 in `PREDICTIONS.md`).
+
+| Model | Same choice in both orders | Picked the first option | Rank correlation with Fable 5.2 |
+|---|---|---|---|
+| Claude Fable 5.2 | 90% | 52% | n/a |
+| Gemini 4 Carbon | 93% | 49% | +0.93 |
+| GPT-6 Luna | 71% | 38% | +0.71 |
+| Qwen3.8 27B | 57% | 53% | +0.43 |
+| DeepSeek V4 Pro | 42% (chance 37%) | 76% | +0.32 |
+
+Gemini's ranking is almost identical to Fable's. Lower agreement with Fable goes with
+lower self-consistency: allowing for each model's own noise, the four models with
+stable preferences agree at roughly +0.6 to +1.0 (exploratory: `exploratory_models.py`).
+DeepSeek did not pass the pre-set test for stable preferences (p = 0.028 against the
+required 0.01), mostly choosing whichever melody came first, so its ranking is not
+interpreted. The comparison models ran with thinking off or at its lowest setting;
+DeepSeek ran on an 8-bit copy from a third-party host.
+
+Fable's recorded prediction was that every model's ranking would correlate positively
+with its own, above +0.5 for the large models. All five correlations are positive, and
+Gemini's is +0.93; DeepSeek's is +0.32, so the prediction was not met for DeepSeek.
+
+## Where things are
+
+| Path | What it holds |
+|---|---|
+| `docs/` | The three web pages above |
+| `stimuli_v2.json`, `pairs_v2.json` | The 60 melodies and the pairs compared. Frozen: these define the experiment |
+| `results/v2/` | Every reply from every model, one line per trial |
+| `reports/v2/` | The analysis report and ranking for each model |
+| `PREDICTIONS.md` | Predictions and analysis plan, committed before the data, with dated amendments |
+| `HANDOVER.md` | The state of the project and next steps |
+| `logs/` | Run logs |
+
+# Repeat the experiment
+
+Everything below is for running the experiment yourself, on any model you can reach
+through OpenRouter. You need Python 3 and an API key. The full design costs a few
+dollars per model.
 
 ## Quick start
 
@@ -173,7 +237,7 @@ Fable 5.2 records lack some of them, as the run log notes).
 | `reports/v2/<model>_report.txt` | The analysis report: data quality, position bias, order agreement, ranking, transitivity, hypothesis fits, self-knowledge |
 | `reports/v2/<model>_ranking.csv` | The 60 melodies in that model's order, with each one's score and features |
 | `logs/` | Logs of the real runs, including every retry and its cause |
-| `docs/index.html` | The listening test page |
+| `docs/` | The web pages: `index.html` (about the experiment), `play.html` (be the subject), `listen.html` (listening test) |
 
 Model names become file names with `/` and `:` replaced by `_`
 (`anthropic/claude-fable-5.2` becomes `anthropic_claude-fable-5.2`).
@@ -230,7 +294,10 @@ when each was committed.
 | `make_audio.py` | Writes the melodies as `.wav` files, named by a model's ranking |
 | `stimuli_v2.py` | Made the v2 melodies and pairs (kept for reference) |
 | `stimuli.py`, `analyse.py` | The v1 design and its analysis |
+| `exploratory_v2.py`, `exploratory_models.py` | Checks thought of after the results (not pre-specified) |
 | `PREDICTIONS.md` | What was expected, written before the results |
+| `HANDOVER.md` | Where the project stands and what to do next |
+| `human_listening/` | Ratings from human listeners, published with their agreement |
 
 ---
 

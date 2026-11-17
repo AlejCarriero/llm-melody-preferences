@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Be the Subject: Melody Preferences</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one narrow column; during a trial, the two melodies sit side by side as equals. */
+:root {
+  --paper: #f3f5f4; --panel: #ffffff; --ink: #18242b; --muted: #5b6b72;
+  --line: #d4dcdb; --accent: #0d6f74; --accent-ink: #ffffff; --soft: #e6efee;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10181b; --panel: #18232a; --ink: #e6eeee; --muted: #9db0b3;
+    --line: #2c3b42; --accent: #5cc9c4; --accent-ink: #06201f; --soft: #1f2e35; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10181b; --panel: #18232a; --ink: #e6eeee; --muted: #9db0b3;
+  --line: #2c3b42; --accent: #5cc9c4; --accent-ink: #06201f; --soft: #1f2e35; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+main { max-width: 720px; margin: 0 auto; padding: 28px 18px 64px; display: flex; flex-direction: column; gap: 20px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 500; font-size: 20px; margin: 0; text-wrap: balance; }
+p { margin: 0; max-width: 64ch; }
+a { color: var(--accent); }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.between { justify-content: space-between; }
+button { font: inherit; font-weight: 500; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:focus-visible, .choice:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+legend { font-weight: 600; margin-bottom: 4px; }
+.choice { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; }
+.choice:has(input:checked) { border-color: var(--accent); background: var(--soft); }
+.choice input { margin-top: 5px; accent-color: var(--accent); }
+.choice span { display: flex; flex-direction: column; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 560px) { .pair { grid-template-columns: 1fr; } }
+.side { border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--paper); }
+.side h3 { font-family: var(--font-display); font-weight: 700; font-size: 24px; margin: 0; }
+.notes { font-family: var(--font-mono); font-size: 14px; line-height: 1.7; word-spacing: 2px; overflow-wrap: anywhere; }
+.track { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.track > div { height: 100%; width: 0%; background: var(--accent); }
+.pick { font-size: 17px; padding: 14px; width: 100%; }
+.progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress > div { height: 100%; background: var(--accent); width: 0%; }
+.prompt { font-family: var(--font-mono); font-size: 13px; white-space: pre-wrap; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-wrap: anywhere; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.stat { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 4px; background: var(--paper); }
+.stat .label { font-size: 13px; color: var(--muted); }
+.stat .big { font-family: var(--font-display); font-size: 32px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .vs { font-size: 13px; color: var(--muted); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; }
+td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.mel { font-family: var(--font-mono); font-size: 12px; color: var(--muted); min-width: 230px; }
+textarea { font-family: var(--font-mono); font-size: 13px; width: 100%; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+details summary { cursor: pointer; color: var(--muted); }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: no-preference) { .track > div, .progress > div { transition: width 0.1s linear; } }
+</style>
+</head>
+<body>
+<main>
+  <header class="row between">
+    <h1>Be the subject</h1>
+    <a class="small" href="./">About the experiment</a>
+  </header>
+
+  <section id="setup" class="panel">
+    <p>A language model was shown hundreds of pairs of short melodies and asked, each time, which one it preferred. Here you do the same task. At the end you see how consistent your own choices were, and how your taste compares with the model's.</p>
+    <fieldset>
+      <legend>How do you want to meet the melodies?</legend>
+      <label class="choice"><input type="radio" name="mode" value="hear" checked> <span><strong>Hear them</strong><span class="muted small">Each melody plays as plain tones. The notes are hidden.</span></span></label>
+      <label class="choice"><input type="radio" name="mode" value="read"> <span><strong>Read them, as the model did</strong><span class="muted small">You see only note names, with no sound: exactly the question the model was asked.</span></span></label>
+    </fieldset>
+    <fieldset>
+      <legend>How long?</legend>
+      <label class="choice"><input type="radio" name="length" value="short" checked> <span><strong>Short: 20 choices</strong><span class="muted small">Every pair of 6 melodies once, plus 5 pairs again in the other order. About 6 minutes when listening.</span></span></label>
+      <label class="choice"><input type="radio" name="length" value="full"> <span><strong>Full: 30 choices</strong><span class="muted small">Every pair in both orders, the way the model was tested. About 9 minutes when listening.</span></span></label>
+    </fieldset>
+    <div class="row"><button class="primary" id="start">Start</button></div>
+    <p class="muted small">You get 6 melodies picked at random, one from each of six families that run from a single repeated note to pure randomness. Nothing you do here is sent anywhere.</p>
+  </section>
+
+  <section id="trial" class="panel" hidden>
+    <div class="row between">
+      <h2 id="trial-title">Choice 1</h2>
+      <span class="muted small" id="trial-count" style="font-variant-numeric: tabular-nums;">1 of 20</span>
+    </div>
+    <div class="progress" aria-hidden="true"><div id="progress"></div></div>
+    <p id="trial-hint" class="muted small">Play both melodies, then choose. There is no right answer.</p>
+    <div class="pair">
+      <div class="side">
+        <h3>A</h3>
+        <div class="notes" id="notes-a" hidden></div>
+        <div class="listen" id="listen-a">
+          <div class="track" aria-hidden="true"><div id="bar-a"></div></div>
+        </div>
+        <button id="play-a" class="listen-btn">Play A</button>
+        <button class="primary pick" id="pick-a" disabled>I prefer A</button>
+      </div>
+      <div class="side">
+        <h3>B</h3>
+        <div class="notes" id="notes-b" hidden></div>
+        <div class="listen" id="listen-b">
+          <div class="track" aria-hidden="true"><div id="bar-b"></div></div>
+        </div>
+        <button id="play-b" class="listen-btn">Play B</button>
+        <button class="primary pick" id="pick-b" disabled>I prefer B</button>
+      </div>
+    </div>
+    <details id="prompt-box">
+      <summary>Show the exact question the model received</summary>
+      <div class="prompt" id="prompt-text"></div>
+    </details>
+    <p class="muted small">Keyboard: A and B to choose<span id="key-play">, 1 and 2 to play</span>.</p>
+  </section>
+
+  <section id="results" hidden style="flex-direction: column; gap: 20px;">
+    <div class="panel">
+      <h2>Your results</h2>
+      <p class="muted small" id="results-mode"></p>
+      <div class="stats">
+        <div class="stat">
+          <span class="label">Picked the same melody when a pair came back in the other order</span>
+          <span class="big" id="r-consistency">0 of 0</span>
+          <span class="vs">The model: 323 of 360 pairs (90%)</span>
+        </div>
+        <div class="stat">
+          <span class="label">Chose whichever melody came first</span>
+          <span class="big" id="r-position">0%</span>
+          <span class="vs">The model: 51.5%. Without a habit, about 50%</span>
+        </div>
+        <div class="stat">
+          <span class="label">Circular triples (A beat B, B beat C, C beat A)</span>
+          <span class="big" id="r-circular">0 of 0</span>
+          <span class="vs">The model: 0 of 154</span>
+        </div>
+        <div class="stat">
+          <span class="label">Choices that matched the model's overall ranking</span>
+          <span class="big" id="r-agree">0%</span>
+          <span class="vs">The model itself: 93%. A coin: 50%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Your order against the model's</h2>
+      <p class="muted small" id="r-spearman"></p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Your order</th><th>Pairs won (of 5)</th><th>Model's order (of these 6)</th><th>Family</th><th>Melody</th><th></th></tr></thead>
+          <tbody id="r-rows"></tbody>
+        </table>
+      </div>
+      <p class="muted small">Your order comes from how many of the other five melodies each one beat in your choices. The model's order comes from its 720 choices across all 60 melodies.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Keep your results</h2>
+      <p class="muted small">This page sends nothing anywhere. Copy the block below if you want to keep it or share it. It also restores this page later: see the box on the start screen.</p>
+      <div class="row"><button class="primary" id="copy">Copy my results</button><span class="muted small" id="copied" role="status"></span></div>
+      <textarea id="out" rows="6" readonly></textarea>
+    </div>
+
+    <div class="panel">
+      <h2>What this can and can't tell you</h2>
+      <p>One session of 20 or 30 choices is a small sample, so a single difference from the model means little. The model saw every melody only as text, and never heard any of them. If you chose to read the melodies, you had the same view it had; if you listened, you had something it never has.</p>
+      <div class="row"><button id="again">Try again with new melodies</button> <a href="listen.html">Rate all 60 melodies by ear</a></div>
+    </div>
+  </section>
+
+  <section class="panel" id="restore-panel">
+    <details>
+      <summary>Have a results block from an earlier session?</summary>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+        <label for="import">Paste it here to see those results again.</label>
+        <textarea id="import" rows="4" placeholder="BE THE SUBJECT v1 ..."></textarea>
+        <div class="row"><button id="import-go">Show these results</button><span class="muted small" id="import-msg" role="status"></span></div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<script>
+const MELODIES = [{"id": 0, "family": "trivial", "notes": "D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4", "score": -2.309, "rank": 60}, {"id": 1, "family": "trivial", "notes": "D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4 D4 G4", "score": -1.426, "rank": 54}, {"id": 2, "family": "trivial", "notes": "E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4 E5 A4", "score": -1.04, "rank": 48}, {"id": 3, "family": "trivial", "notes": "G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4 G4", "score": -1.823, "rank": 59}, {"id": 4, "family": "trivial", "notes": "E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5 E5 D5", "score": -1.183, "rank": 52}, {"id": 5, "family": "trivial", "notes": "D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5 D5", "score": -1.736, "rank": 58}, {"id": 6, "family": "repeat", "notes": "D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4 D5 D4 C5 D4", "score": -1.176, "rank": 51}, {"id": 7, "family": "repeat", "notes": "A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4 A4 E5 E4 A4", "score": -1.504, "rank": 57}, {"id": 8, "family": "repeat", "notes": "C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5 C5 E5 D5", "score": -1.427, "rank": 55}, {"id": 9, "family": "repeat", "notes": "D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4 D5 E5 D4", "score": -1.267, "rank": 53}, {"id": 10, "family": "repeat", "notes": "E5 D5 A4 D5 E5 D5 A4 D5 E5 D5 A4 D5 E5 D5 A4 D5 E5 D5 A4 D5 E5 D5 A4 D5", "score": -1.123, "rank": 50}, {"id": 11, "family": "repeat", "notes": "C4 G4 E4 C4 C4 G4 E4 C4 C4 G4 E4 C4 C4 G4 E4 C4 C4 G4 E4 C4 C4 G4 E4 C4", "score": -1.06, "rank": 49}, {"id": 12, "family": "repeat", "notes": "D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4 D5 E5 E4", "score": -1.435, "rank": 56}, {"id": 13, "family": "repeat", "notes": "G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4 G4 D4 E5 A4", "score": -0.945, "rank": 47}, {"id": 14, "family": "scale_run", "notes": "D4 E4 G4 E4 G4 A4 G4 A4 C5 A4 C5 D5 D5 C5 A4 C5 A4 G4 A4 G4 E4 G4 E4 D4", "score": 0.899, "rank": 17}, {"id": 15, "family": "scale_run", "notes": "D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4", "score": -0.352, "rank": 38}, {"id": 16, "family": "scale_run", "notes": "C4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 C4 D4 E4 G4 A4 C5 D5 E5 D5 C5", "score": 0.064, "rank": 31}, {"id": 17, "family": "scale_run", "notes": "D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 C4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4", "score": 0.156, "rank": 29}, {"id": 18, "family": "scale_run", "notes": "C4 D4 E4 D4 E4 G4 E4 G4 A4 G4 A4 C5 C5 A4 G4 A4 G4 E4 G4 E4 D4 E4 D4 C4", "score": 1.482, "rank": 3}, {"id": 19, "family": "scale_run", "notes": "E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4 E4 G4 A4 C5 D5 E5 D5 C5 A4 G4 E4 D4", "score": 0.263, "rank": 25}, {"id": 20, "family": "motif_variation", "notes": "D4 E4 C4 G4 E4 G4 D4 A4 D4 E4 C4 G4 G4 A4 E4 C5 E4 G4 D4 A4 D4 E4 D4 D4", "score": 1.462, "rank": 4}, {"id": 21, "family": "motif_variation", "notes": "D4 E4 C4 D4 E4 G4 D4 E4 D4 E4 C4 D4 G4 A4 E4 G4 E4 G4 D4 E4 D4 E4 D4 D4", "score": 0.732, "rank": 18}, {"id": 22, "family": "motif_variation", "notes": "D4 G4 E4 D4 E4 A4 G4 E4 D4 G4 E4 D4 G4 C5 A4 G4 E4 A4 G4 E4 D4 G4 E4 D4", "score": 1.189, "rank": 8}, {"id": 23, "family": "motif_variation", "notes": "D4 G4 C4 G4 E4 A4 D4 A4 D4 G4 C4 G4 G4 C5 E4 C5 E4 A4 D4 A4 D4 G4 E4 D4", "score": 1.127, "rank": 10}, {"id": 24, "family": "motif_variation", "notes": "D4 G4 C4 D4 E4 A4 D4 E4 D4 G4 C4 D4 G4 C5 E4 G4 E4 A4 D4 E4 D4 G4 E4 D4", "score": 1.201, "rank": 7}, {"id": 25, "family": "motif_variation", "notes": "E4 A4 G4 E4 G4 C5 A4 G4 E4 A4 G4 E4 A4 D5 C5 A4 G4 C5 A4 G4 E4 A4 G4 E4", "score": 1.884, "rank": 1}, {"id": 26, "family": "motif_variation", "notes": "E4 G4 D4 A4 G4 A4 E4 C5 E4 G4 D4 A4 A4 C5 G4 D5 G4 A4 E4 C5 E4 G4 E4 E4", "score": 1.137, "rank": 9}, {"id": 27, "family": "motif_variation", "notes": "E4 A4 G4 A4 G4 C5 A4 C5 E4 A4 G4 A4 A4 D5 C5 D5 G4 C5 A4 C5 E4 A4 G4 E4", "score": 1.769, "rank": 2}, {"id": 28, "family": "motif_surprise", "notes": "E5 E4 G4 E5 E4 G4 E5 E4 G4 E5 E4 G4 E5 E4 G4 E5 E4 G4 E5 E4 C5 G4 D4 D5", "score": -0.339, "rank": 37}, {"id": 29, "family": "motif_surprise", "notes": "G4 E4 C4 G4 E4 C4 G4 E4 C4 G4 E4 C4 G4 E4 C4 C4 E5 C4 G4 E4 C4 G4 E4 C4", "score": -0.39, "rank": 39}, {"id": 30, "family": "motif_surprise", "notes": "E5 C4 E4 E5 C4 E4 E5 C4 E4 E5 C4 E4 E5 C4 E4 G4 E4 E4 E5 C4 E4 E5 C4 E4", "score": -0.906, "rank": 46}, {"id": 31, "family": "motif_surprise", "notes": "E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 A4 E4 D5 D5 D4 A4 E4", "score": -0.226, "rank": 35}, {"id": 32, "family": "motif_surprise", "notes": "E4 A4 E5 D5 E4 A4 E5 D5 E4 A4 E5 D5 E4 A4 E5 D5 E4 A4 E5 D5 C5 E5 D4 A4", "score": 0.254, "rank": 26}, {"id": 33, "family": "motif_surprise", "notes": "G4 C4 D4 G4 C4 D4 G4 C4 D4 G4 C4 D4 G4 C4 D4 C5 D5 D4 G4 C4 D4 G4 C4 D4", "score": 0.172, "rank": 27}, {"id": 34, "family": "motif_surprise", "notes": "C4 C5 E4 C4 C5 E4 C4 C5 E4 C4 C5 E4 C4 C5 E4 C4 C5 E4 C4 C5 G4 D4 A4 G4", "score": -0.484, "rank": 41}, {"id": 35, "family": "motif_surprise", "notes": "A4 E4 D4 A4 A4 E4 D4 A4 A4 E4 D4 A4 A4 E4 D4 A4 A4 E4 D4 A4 D5 D4 C4 C5", "score": -0.126, "rank": 34}, {"id": 36, "family": "noisy_motif_15", "notes": "E4 D4 C5 A4 E4 C5 C5 A4 A4 D4 D4 A4 E4 C5 C5 A4 E4 D4 D5 A4 E4 D4 C5 A4", "score": 0.442, "rank": 22}, {"id": 37, "family": "noisy_motif_15", "notes": "C5 A4 D5 A4 C5 A4 D5 A4 C5 A4 D5 A4 D5 A4 D5 A4 C5 A4 D5 D4 E4 A4 D5 A4", "score": 0.069, "rank": 30}, {"id": 38, "family": "noisy_motif_15", "notes": "A4 C4 D5 E4 A4 C4 D5 E4 A4 C4 D5 E4 A4 C4 D5 C4 E5 C4 D5 D4 A4 C4 D5 E4", "score": 0.163, "rank": 28}, {"id": 39, "family": "noisy_motif_15", "notes": "A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4 A4 C5 C4 G4", "score": -0.646, "rank": 44}, {"id": 40, "family": "noisy_motif_30", "notes": "D5 E4 E5 C4 D5 E4 E5 C4 D5 E4 C5 C4 D4 E4 G4 C4 D5 E4 D5 C4 D5 E4 E5 D4", "score": 0.371, "rank": 24}, {"id": 41, "family": "noisy_motif_30", "notes": "D4 E4 D5 C5 D4 E4 D5 C5 A4 A4 D5 C5 C4 E4 D5 C5 D4 E4 D5 C5 D4 E4 C5 C5", "score": 0.529, "rank": 19}, {"id": 42, "family": "noisy_motif_30", "notes": "E4 C4 D4 C4 E4 A4 E4 C4 D4 C4 D4 C4 E4 C4 D4 C4 E4 C4 G4 C4 E4 C4 D4 D4", "score": 0.487, "rank": 21}, {"id": 43, "family": "noisy_motif_30", "notes": "E5 A4 G4 E4 E5 A4 G4 E4 E5 A4 G4 E5 C5 A4 G4 E4 E5 E5 G4 E4 A4 A4 A4 E4", "score": 1.091, "rank": 11}, {"id": 44, "family": "noisy_motif_50", "notes": "E5 A4 E4 A4 E4 A4 A4 A4 E5 C5 E4 E5 E5 A4 E4 A4 E5 C5 E4 D5 E5 A4 D5 A4", "score": 0.032, "rank": 32}, {"id": 45, "family": "noisy_motif_50", "notes": "E5 C5 C4 G4 E5 C5 C4 G4 E5 C5 C4 G4 E5 D4 G4 G4 E4 C5 D5 G4 E5 C5 A4 G4", "score": 1.335, "rank": 6}, {"id": 46, "family": "noisy_motif_50", "notes": "C4 E4 G4 E5 C4 C5 E5 C5 C4 E5 E5 E5 E5 A4 G4 E5 C4 E4 G4 E5 C4 E4 G4 E5", "score": 1.02, "rank": 13}, {"id": 47, "family": "noisy_motif_50", "notes": "E5 D4 C5 E5 C5 D4 C5 E5 A4 D4 C5 E5 E5 D4 C5 E5 G4 E4 C5 E5 E5 C5 D5 E5", "score": 0.398, "rank": 23}, {"id": 48, "family": "random_walk", "notes": "G4 E4 G4 A4 D5 C5 E5 D5 C5 E5 E5 C5 E5 C5 A4 G4 E4 D4 C4 D4 G4 E4 D4 E4", "score": 0.972, "rank": 14}, {"id": 49, "family": "random_walk", "notes": "G4 E4 A4 E4 D4 G4 E4 G4 C5 D5 E5 E5 C5 A4 G4 A4 G4 A4 E4 G4 C5 E5 E5 D5", "score": 1.357, "rank": 5}, {"id": 50, "family": "random_walk", "notes": "A4 G4 C5 D5 A4 C5 G4 D4 C4 C4 D4 G4 C5 A4 G4 D4 C4 D4 C4 C4 D4 G4 A4 G4", "score": 0.494, "rank": 20}, {"id": 51, "family": "random_walk", "notes": "G4 E4 D4 G4 A4 G4 E4 D4 E4 G4 C5 D5 E5 D5 E5 D5 C5 E5 E5 E5 E5 E5 E5 C5", "score": 0.967, "rank": 15}, {"id": 52, "family": "random_walk", "notes": "G4 C5 A4 E4 C4 C4 E4 A4 C5 E5 D5 A4 G4 E4 A4 C5 A4 C5 G4 A4 G4 C5 E5 D5", "score": 0.931, "rank": 16}, {"id": 53, "family": "random_walk", "notes": "A4 D5 C5 D5 A4 C5 D5 E5 D5 C5 D5 C5 G4 E4 G4 E4 D4 E4 G4 A4 D5 E5 C5 E5", "score": 1.05, "rank": 12}, {"id": 54, "family": "random", "notes": "C5 A4 D4 E5 E5 C5 D4 A4 A4 C4 D4 C4 D4 E5 D4 D5 E5 E5 C4 E4 C5 E4 C4 D4", "score": -0.777, "rank": 45}, {"id": 55, "family": "random", "notes": "D5 D4 E4 A4 C4 C4 D4 D4 C5 E4 A4 E5 G4 C5 E5 G4 D5 G4 C5 D5 C4 E5 G4 E4", "score": -0.031, "rank": 33}, {"id": 56, "family": "random", "notes": "E5 G4 D4 E5 D5 E5 C4 E5 G4 D5 C4 E5 E4 A4 G4 C5 A4 D5 C4 C5 E4 D4 C5 G4", "score": -0.582, "rank": 43}, {"id": 57, "family": "random", "notes": "D4 E4 E5 D5 D4 D4 D5 D5 C4 G4 G4 C4 A4 E4 A4 C5 D4 A4 E4 C4 G4 D4 E5 C4", "score": -0.411, "rank": 40}, {"id": 58, "family": "random", "notes": "C5 E5 C4 G4 E5 C4 A4 D4 E4 D4 A4 G4 C4 A4 C4 E5 A4 D4 E4 G4 E5 C4 C5 G4", "score": -0.496, "rank": 42}, {"id": 59, "family": "random", "notes": "D5 E5 D4 G4 C4 C4 D5 D5 D4 E5 E4 E4 G4 E4 G4 C5 D5 A4 E4 E5 D4 C4 C5 D4", "score": -0.285, "rank": 36}];
+const FAMILIES = ["trivial", "repeat", "scale_run", "motif_variation", "random_walk", "random"];
+const FREQ = { C4: 261.63, D4: 293.66, E4: 329.63, G4: 392.00, A4: 440.00, C5: 523.25, D5: 587.33, E5: 659.25 };
+const NOTE_SECONDS = 0.30;
+const STORE_KEY = "be-the-subject-v1";
+const PROMPT =
+  "Here are two short melodies, written as note names and played at an even tempo.\n\n" +
+  "Melody A: {a}\nMelody B: {b}\n\n" +
+  "Which one do you prefer? There is no right answer. " +
+  "Reply with a single letter, A or B, and nothing else.";
+
+const byId = {};
+MELODIES.forEach(m => { byId[m.id] = m; });
+const el = id => document.getElementById(id);
+
+let state = null;   // { mode, length, melodies, trials: [{a, b}], choices: [id], position }
+let heard = { a: false, b: false };
+let audio = null, playing = [], barTimer = null;
+
+function shuffle(list) {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage is optional */ } }
+function load() { try { return JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { return null; } }
+
+// Build the trials. Repeated pairs (shown again in the other order) are kept at least
+// three choices away from their first showing, so the answer isn't simply remembered.
+function buildTrials(ids, length) {
+  const pairs = [];
+  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) pairs.push([ids[i], ids[j]]);
+  let trials = pairs.map(p => Math.random() < 0.5 ? { a: p[0], b: p[1] } : { a: p[1], b: p[0] });
+  const reversed = length === "full" ? trials : shuffle(trials).slice(0, 5);
+  trials = trials.concat(reversed.map(t => ({ a: t.b, b: t.a })));
+  for (let attempt = 0; attempt < 500; attempt++) {
+    const order = shuffle(trials);
+    let ok = true;
+    for (let i = 0; i < order.length && ok; i++) {
+      for (let j = i + 1; j < Math.min(order.length, i + 3); j++) {
+        const x = order[i], y = order[j];
+        if (Math.min(x.a, x.b) === Math.min(y.a, y.b) && Math.max(x.a, x.b) === Math.max(y.a, y.b)) { ok = false; break; }
+      }
+    }
+    if (ok) return order;
+  }
+  return shuffle(trials);
+}
+
+function begin() {
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+  const length = document.querySelector('input[name="length"]:checked').value;
+  const ids = FAMILIES.map(f => pick(MELODIES.filter(m => m.family === f)).id);
+  state = { mode: mode, length: length, melodies: ids, trials: buildTrials(ids, length), choices: [], position: 0 };
+  save();
+  show("trial");
+  showTrial();
+}
+
+function show(name) {
+  el("setup").hidden = name !== "setup";
+  el("trial").hidden = name !== "trial";
+  el("results").hidden = name !== "results";
+  el("results").style.display = name === "results" ? "flex" : "none";
+  el("restore-panel").hidden = name === "trial";
+}
+
+function stopSound() {
+  playing.forEach(node => { try { node.stop(); } catch (e) { /* already stopped */ } });
+  playing = [];
+  if (barTimer) { clearInterval(barTimer); barTimer = null; }
+}
+
+function play(side) {
+  if (!state || state.mode !== "hear") return;
+  try {
+    if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === "suspended") audio.resume();
+  } catch (e) { el("trial-hint").textContent = "This browser would not start audio. Try another browser, or choose Read."; return; }
+  stopSound();
+  el("bar-a").style.width = "0%"; el("bar-b").style.width = "0%";
+  const trial = state.trials[state.position];
+  const notes = byId[side === "a" ? trial.a : trial.b].notes.split(" ");
+  const start = audio.currentTime + 0.05;
+  notes.forEach((name, k) => {
+    const osc = audio.createOscillator(), gain = audio.createGain();
+    osc.type = "sine"; osc.frequency.value = FREQ[name];
+    const t0 = start + k * NOTE_SECONDS;
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(0.35, t0 + 0.02);
+    gain.gain.setValueAtTime(0.35, t0 + NOTE_SECONDS - 0.03);
+    gain.gain.linearRampToValueAtTime(0, t0 + NOTE_SECONDS);
+    osc.connect(gain); gain.connect(audio.destination);
+    osc.start(t0); osc.stop(t0 + NOTE_SECONDS + 0.01);
+    playing.push(osc);
+  });
+  const total = notes.length * NOTE_SECONDS, began = performance.now(), bar = el("bar-" + side);
+  barTimer = setInterval(() => {
+    const done = Math.min(1, (performance.now() - began) / 1000 / total);
+    bar.style.width = (done * 100) + "%";
+    if (done >= 1) {
+      clearInterval(barTimer); barTimer = null;
+      heard[side] = true;
+      el("play-" + side).textContent = "Play " + side.toUpperCase() + " again";
+      updatePickable();
+    }
+  }, 60);
+}
+
+function updatePickable() {
+  const ready = state.mode === "read" || (heard.a && heard.b);
+  el("pick-a").disabled = !ready; el("pick-b").disabled = !ready;
+  if (state.mode === "hear") {
+    el("trial-hint").textContent = ready ? "Now choose, or play either again." : "Play both melodies, then choose. There is no right answer.";
+  }
+}
+
+function showTrial() {
+  stopSound();
+  heard = { a: false, b: false };
+  const n = state.position + 1, total = state.trials.length, trial = state.trials[state.position];
+  el("trial-title").textContent = "Choice " + n;
+  el("trial-count").textContent = n + " of " + total;
+  el("progress").style.width = (state.position / total * 100) + "%";
+  const reading = state.mode === "read";
+  ["a", "b"].forEach(side => {
+    el("notes-" + side).hidden = !reading;
+    el("notes-" + side).textContent = byId[trial[side]].notes;
+    el("listen-" + side).hidden = reading;
+    el("play-" + side).hidden = reading;
+    el("play-" + side).textContent = "Play " + side.toUpperCase();
+    el("bar-" + side).style.width = "0%";
+  });
+  el("key-play").hidden = reading;
+  el("trial-hint").textContent = reading ? "Read both melodies, then choose. There is no right answer." : "Play both melodies, then choose. There is no right answer.";
+  el("prompt-text").textContent = PROMPT.replace("{a}", byId[trial.a].notes).replace("{b}", byId[trial.b].notes);
+  updatePickable();
+}
+
+function choose(side) {
+  if (!state || el("trial").hidden) return;
+  if (el("pick-" + side).disabled) return;
+  const trial = state.trials[state.position];
+  state.choices[state.position] = side === "a" ? trial.a : trial.b;
+  state.position += 1;
+  save();
+  if (state.position >= state.trials.length) finish(); else showTrial();
+}
+
+// ---------- results ----------
+
+function ranks(values) {
+  const order = values.map((v, i) => [v, i]).sort((x, y) => x[0] - y[0]);
+  const out = new Array(values.length);
+  let i = 0;
+  while (i < order.length) {
+    let j = i;
+    while (j + 1 < order.length && order[j + 1][0] === order[i][0]) j++;
+    for (let k = i; k <= j; k++) out[order[k][1]] = (i + j) / 2 + 1;
+    i = j + 1;
+  }
+  return out;
+}
+function spearman(x, y) {
+  const rx = ranks(x), ry = ranks(y), n = x.length;
+  const mx = rx.reduce((s, v) => s + v, 0) / n, my = ry.reduce((s, v) => s + v, 0) / n;
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < n; i++) { sxy += (rx[i] - mx) * (ry[i] - my); sxx += (rx[i] - mx) ** 2; syy += (ry[i] - my) ** 2; }
+  return (sxx === 0 || syy === 0) ? null : sxy / Math.sqrt(sxx * syy);
+}
+
+function finish() {
+  stopSound();
+  show("results");
+  const ids = state.melodies, trials = state.trials, choices = state.choices;
+  const key = (x, y) => Math.min(x, y) + "-" + Math.max(x, y);
+
+  el("results-mode").textContent = (state.mode === "read" ? "You read the melodies as note names, as the model did." : "You heard the melodies; the model only ever read them.") +
+    " " + trials.length + " choices over 6 melodies.";
+
+  // position habit
+  let first = 0;
+  trials.forEach((t, i) => { if (choices[i] === t.a) first++; });
+  el("r-position").textContent = Math.round(first / trials.length * 100) + "%";
+
+  // consistency across orders
+  const seen = {};
+  let repeats = 0, same = 0;
+  trials.forEach((t, i) => {
+    const k = key(t.a, t.b);
+    if (k in seen) { repeats++; if (seen[k] === choices[i]) same++; } else seen[k] = choices[i];
+  });
+  el("r-consistency").textContent = same + " of " + repeats;
+
+  // wins
+  const wins = {};
+  ids.forEach(x => { wins[x] = {}; ids.forEach(y => { wins[x][y] = 0; }); });
+  trials.forEach((t, i) => { const w = choices[i], l = w === t.a ? t.b : t.a; wins[w][l]++; });
+  let circular = 0, usable = 0;
+  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) for (let k = j + 1; k < ids.length; k++) {
+    const x = ids[i], y = ids[j], z = ids[k];
+    const pairs = [[x, y], [y, z], [x, z]];
+    if (pairs.some(([p, q]) => wins[p][q] === wins[q][p])) continue;
+    usable++;
+    const xy = wins[x][y] > wins[y][x], yz = wins[y][z] > wins[z][y], xz = wins[x][z] > wins[z][x];
+    if ((xy && yz && !xz) || (!xy && !yz && xz)) circular++;
+  }
+  el("r-circular").textContent = circular + " of " + usable;
+
+  // agreement with the model's ranking
+  let agree = 0;
+  trials.forEach((t, i) => {
+    const w = choices[i], l = w === t.a ? t.b : t.a;
+    if (byId[w].score > byId[l].score) agree++;
+  });
+  el("r-agree").textContent = Math.round(agree / trials.length * 100) + "%";
+
+  // orders
+  // pairs won: 1 for each rival beaten more often than not, 0.5 for a split pair.
+  // Counting pairs, not raw wins, keeps the repeated pairs from giving some melodies extra weight.
+  const total = {};
+  ids.forEach(x => {
+    total[x] = ids.reduce((s, y) => x === y ? s : s + (wins[x][y] > wins[y][x] ? 1 : wins[x][y] === wins[y][x] ? 0.5 : 0), 0);
+  });
+  const mine = ids.slice().sort((x, y) => total[y] - total[x] || byId[x].id - byId[y].id);
+  const modelOrder = ids.slice().sort((x, y) => byId[y].score - byId[x].score);
+  const rho = spearman(ids.map(x => total[x]), ids.map(x => byId[x].score));
+  el("r-spearman").textContent = rho === null
+    ? "Your choices gave every melody the same number of wins, so there is no order to compare."
+    : "Rank correlation between your order and the model's: " + (rho >= 0 ? "+" : "") + rho.toFixed(2) +
+      " (+1 identical, 0 unrelated, -1 reversed). With only 6 melodies, anything between about -0.8 and +0.8 could happen by chance.";
+
+  const body = el("r-rows");
+  body.textContent = "";
+  mine.forEach((x, i) => {
+    const tr = document.createElement("tr");
+    const cells = [[i + 1, "n"], [total[x], "n"], [modelOrder.indexOf(x) + 1, "n"], [byId[x].family.replace(/_/g, " "), ""], [byId[x].notes, "mel"]];
+    cells.forEach(([text, cls]) => { const td = document.createElement("td"); td.textContent = text; if (cls) td.className = cls; tr.appendChild(td); });
+    const td = document.createElement("td"), b = document.createElement("button");
+    b.textContent = "Play";
+    b.addEventListener("click", () => playById(x));
+    td.appendChild(b); tr.appendChild(td);
+    body.appendChild(tr);
+  });
+
+  el("out").value = resultText();
+}
+
+function playById(id) {
+  try {
+    if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === "suspended") audio.resume();
+  } catch (e) { return; }
+  stopSound();
+  const start = audio.currentTime + 0.05;
+  byId[id].notes.split(" ").forEach((name, k) => {
+    const osc = audio.createOscillator(), gain = audio.createGain();
+    osc.type = "sine"; osc.frequency.value = FREQ[name];
+    const t0 = start + k * NOTE_SECONDS;
+    gain.gain.setValueAtTime(0, t0); gain.gain.linearRampToValueAtTime(0.35, t0 + 0.02);
+    gain.gain.setValueAtTime(0.35, t0 + NOTE_SECONDS - 0.03); gain.gain.linearRampToValueAtTime(0, t0 + NOTE_SECONDS);
+    osc.connect(gain); gain.connect(audio.destination); osc.start(t0); osc.stop(t0 + NOTE_SECONDS + 0.01);
+    playing.push(osc);
+  });
+}
+
+function resultText() {
+  const lines = state.trials.map((t, i) => t.a + ">" + t.b + "=" + state.choices[i]).join(",");
+  return "BE THE SUBJECT v1\nmode: " + state.mode + "\nlength: " + state.length +
+    "\nmelodies: " + state.melodies.join(",") +
+    "\ntrials (A>B=chosen): " + lines;
+}
+
+function importResults() {
+  const text = el("import").value;
+  const mode = (text.match(/mode:\s*(hear|read)/) || [])[1];
+  const length = (text.match(/length:\s*(short|full)/) || [])[1];
+  const mel = (text.match(/melodies:\s*([\d,\s]+)/) || [])[1];
+  const tr = (text.match(/trials \(A>B=chosen\):\s*([\d>=,\s]+)/) || [])[1];
+  if (!mode || !length || !mel || !tr) { el("import-msg").textContent = "That doesn't look like a complete results block. Paste all of it, starting at BE THE SUBJECT."; return; }
+  const melodies = mel.split(",").map(s => Number(s.trim())).filter(n => byId[n]);
+  const trials = [], choices = [];
+  for (const item of tr.split(",")) {
+    const m = item.trim().match(/^(\d+)>(\d+)=(\d+)$/);
+    if (!m) continue;
+    const a = Number(m[1]), b = Number(m[2]), c = Number(m[3]);
+    if (!byId[a] || !byId[b] || (c !== a && c !== b)) continue;
+    trials.push({ a: a, b: b }); choices.push(c);
+  }
+  if (melodies.length !== 6 || trials.length < 15) { el("import-msg").textContent = "Some of the block is missing or damaged, so the results can't be rebuilt."; return; }
+  state = { mode: mode, length: length, melodies: melodies, trials: trials, choices: choices, position: trials.length };
+  save();
+  el("import-msg").textContent = "";
+  finish();
+}
+
+// ---------- wiring ----------
+
+el("start").addEventListener("click", begin);
+el("play-a").addEventListener("click", () => play("a"));
+el("play-b").addEventListener("click", () => play("b"));
+el("pick-a").addEventListener("click", () => choose("a"));
+el("pick-b").addEventListener("click", () => choose("b"));
+el("again").addEventListener("click", () => { state = null; show("setup"); });
+el("import-go").addEventListener("click", importResults);
+el("copy").addEventListener("click", () => {
+  const text = resultText();
+  el("out").value = text;
+  const fallback = () => { el("out").focus(); el("out").select(); el("copied").textContent = "Copy was blocked. The text is selected: copy it by hand."; };
+  try { navigator.clipboard.writeText(text).then(() => { el("copied").textContent = "Copied."; }, fallback); } catch (e) { fallback(); }
+});
+document.addEventListener("keydown", event => {
+  if (!state || el("trial").hidden) return;
+  if (event.target && (event.target.tagName === "TEXTAREA" || event.target.tagName === "INPUT")) return;
+  const k = event.key.toLowerCase();
+  if (k === "a") choose("a");
+  if (k === "b") choose("b");
+  if (k === "1") play("a");
+  if (k === "2") play("b");
+});
+
+const previous = load();
+if (previous && previous.trials && previous.position >= previous.trials.length) {
+  state = previous; finish();
+} else if (previous && previous.trials && previous.position > 0) {
+  state = previous; show("trial"); showTrial();
+} else {
+  show("setup");
+}
+</script>
+</body>
+</html>

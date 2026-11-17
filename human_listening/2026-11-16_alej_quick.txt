@@ -1,0 +1,9 @@
+One listener (Alej), 16 November 2026, short set of 24 melodies, sine tones, played
+through the listening page. The listener had seen the model's ranking as text
+beforehand, so this was not fully blind. Published with her agreement.
+
+LISTENING RESULTS v1
+set: quick (24 melodies)
+ratings in the order heard (melody id:rating 1-5): 0:2,18:3,45:2,24:3,16:4,25:3,3:1,44:2,35:3,7:4,1:2,5:1,33:3,55:1,17:4,38:4,20:2,37:3,9:3,22:5,27:2,49:3,12:3,8:4
+notes: Afterwards, in conversation: melody 22 (the only 5) recalled a piano exercise
+learned in childhood and still remembered 18 years later.

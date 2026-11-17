@@ -1,0 +1,31 @@
+EXPLORATORY CHECKS for anthropic/claude-fable-5.2. Not pre-specified, except part A.
+
+A. SELF-PREDICTION AND THE RE-ASKED TRIALS (promised in Amendment 2)
+   All prediction trials:                     330 of 360 (91.7%)
+   Completed at the 300 limit (never cut off): 235 of 244 (96.3%)
+   Re-asked after being cut off:               21 of 35 (60.0%)
+   All, leaving out the re-asked:              309 of 325 (95.1%)
+
+B. REPEAT RELIABILITY (same pair, same order, asked twice)
+   Same answer both times: 47 of 50
+   first asked on Google: 25 of 25
+   first asked on Azure: 13 of 14
+   first asked on Anthropic: 9 of 11
+
+C. THINKING LENGTH (tokens, where reported)
+   choose   mean 27   median 0   (n = 720)
+   predict  mean 120   median 88   (n = 360)
+
+D. OTHER THINGS THAT MIGHT PREDICT THE CHOICES
+   Rank correlation with the preference score:
+   surprise     +0.59
+   repetition   -0.58
+   small_steps  +0.21
+   ends_on_c    +0.04
+
+   Held-out prediction (bits per trial; 1.00 = coin flip, lower is better):
+   0.498 +/- 0.038   85% correct   surprise, curved (the pre-specified inverted U)
+   0.481 +/- 0.041   83% correct   repetition, curved
+   0.414 +/- 0.034   86% correct   surprise curved + small steps
+   0.430 +/- 0.032   86% correct   surprise curved + repetition
+   0.496 +/- 0.041   85% correct   surprise curved + ends on C
