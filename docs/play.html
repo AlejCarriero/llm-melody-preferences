@@ -163,6 +163,18 @@ details summary { cursor: pointer; color: var(--muted); }
     </div>
 
     <div class="panel">
+      <h2>How you compare with each AI</h2>
+      <p class="muted small">Five AI models made this kind of choice in the experiment, 720 times each, reading the notes. For each one: how many of your choices agree with its overall ranking, and how close your order of these 6 melodies is to its order (+1 identical, 0 unrelated, -1 reversed).</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>AI</th><th>Your choices matching its ranking</th><th>Its own choices matching its ranking</th><th>Your order vs its order</th></tr></thead>
+          <tbody id="ai-rows"></tbody>
+        </table>
+      </div>
+      <p class="muted small" id="ai-notes"></p>
+    </div>
+
+    <div class="panel">
       <h2>Your order against the model's</h2>
       <p class="muted small" id="r-spearman"></p>
       <div class="scroll">
@@ -222,6 +234,9 @@ const PROMPT =
   "Which one do you prefer? There is no right answer. " +
   "Reply with a single letter, A or B, and nothing else.";
 
+// Each AI's preference score for the 60 melodies, from reports/v2/<model>_ranking.csv, and how often
+// its own 720 choices agreed with its own ranking (selfMatch, %). Generated from the committed data.
+const AI_MODELS = [{"name":"Claude Fable 5.2","note":"","selfMatch":93,"scores":{"0":-2.309,"1":-1.426,"2":-1.04,"3":-1.823,"4":-1.183,"5":-1.736,"6":-1.176,"7":-1.504,"8":-1.427,"9":-1.267,"10":-1.123,"11":-1.06,"12":-1.435,"13":-0.945,"14":0.899,"15":-0.352,"16":0.064,"17":0.156,"18":1.482,"19":0.263,"20":1.462,"21":0.732,"22":1.189,"23":1.127,"24":1.201,"25":1.884,"26":1.137,"27":1.769,"28":-0.339,"29":-0.39,"30":-0.906,"31":-0.226,"32":0.254,"33":0.172,"34":-0.484,"35":-0.126,"36":0.442,"37":0.069,"38":0.163,"39":-0.646,"40":0.371,"41":0.529,"42":0.487,"43":1.091,"44":0.032,"45":1.335,"46":1.02,"47":0.398,"48":0.972,"49":1.357,"50":0.494,"51":0.967,"52":0.931,"53":1.05,"54":-0.777,"55":-0.031,"56":-0.582,"57":-0.411,"58":-0.496,"59":-0.285}},{"name":"Gemini 4 Carbon","note":"","selfMatch":95,"scores":{"0":-2.215,"1":-1.501,"2":-1.169,"3":-1.748,"4":-1.277,"5":-1.736,"6":-0.992,"7":-1.321,"8":-0.851,"9":-1.126,"10":-0.72,"11":-0.742,"12":-1.542,"13":-0.968,"14":1.481,"15":0.049,"16":0.081,"17":0.742,"18":1.538,"19":-0.027,"20":0.886,"21":1.274,"22":1.255,"23":1.223,"24":0.826,"25":2.159,"26":0.965,"27":1.688,"28":0.057,"29":-0.841,"30":-0.319,"31":-0.192,"32":0.245,"33":0.293,"34":-0.38,"35":-0.313,"36":0.341,"37":0.185,"38":-0.234,"39":-0.658,"40":0.295,"41":0.203,"42":0.727,"43":0.93,"44":0.543,"45":0.702,"46":0.567,"47":-0.057,"48":1.142,"49":1.455,"50":1.287,"51":0.71,"52":0.837,"53":1.573,"54":-1.244,"55":-0.908,"56":-0.684,"57":-0.844,"58":-0.652,"59":-0.998}},{"name":"GPT-6 Luna","note":"","selfMatch":84,"scores":{"0":-1.963,"1":-1.032,"2":-1.128,"3":-1.477,"4":-1.101,"5":-1.551,"6":-0.683,"7":-0.766,"8":0.113,"9":-1.497,"10":0.242,"11":-0.548,"12":-1.139,"13":-0.472,"14":1.04,"15":1.252,"16":1.781,"17":1.534,"18":0.702,"19":1.674,"20":-0.02,"21":0.137,"22":0.797,"23":-0.227,"24":0.06,"25":0.799,"26":0.648,"27":1.138,"28":-0.574,"29":-0.047,"30":-0.334,"31":-1.292,"32":0.137,"33":-0.055,"34":-0.537,"35":-0.417,"36":0.287,"37":-0.343,"38":0.133,"39":-0.484,"40":-0.204,"41":0.28,"42":-0.645,"43":0.465,"44":-0.009,"45":0.183,"46":0.656,"47":0.165,"48":0.795,"49":0.963,"50":-0.181,"51":0.884,"52":1.266,"53":0.903,"54":-0.573,"55":0.435,"56":-0.232,"57":-0.249,"58":0.585,"59":-0.275}},{"name":"Qwen3.8 27B","note":"","selfMatch":70,"scores":{"0":-1.717,"1":-0.886,"2":-0.878,"3":-1.503,"4":-0.949,"5":-1.51,"6":-0.208,"7":0.188,"8":0.23,"9":-0.508,"10":-0.192,"11":0.049,"12":-0.332,"13":-0.123,"14":0.166,"15":0.655,"16":0.574,"17":0.727,"18":0.219,"19":0.661,"20":-0.253,"21":0.081,"22":0.495,"23":0.274,"24":-0.627,"25":0.409,"26":0.177,"27":-0.179,"28":0.153,"29":-0.081,"30":0.088,"31":-0.281,"32":0.455,"33":0.131,"34":0.113,"35":0.095,"36":0.212,"37":-0.015,"38":-0.231,"39":0.08,"40":0.427,"41":0.345,"42":0.007,"43":-0.007,"44":0.372,"45":-0.029,"46":-0.021,"47":0.249,"48":0.593,"49":0.725,"50":-0.283,"51":0.166,"52":0.649,"53":0.461,"54":0.039,"55":0.096,"56":0.142,"57":0.259,"58":0.109,"59":-0.059}},{"name":"DeepSeek V4 Pro","note":"Did not pass the experiment's test for stable preferences (it mostly picked whichever melody came first), so treat its ranking with caution.","selfMatch":65,"scores":{"0":-1.358,"1":-0.335,"2":-0.397,"3":-0.946,"4":0.075,"5":-0.981,"6":0.038,"7":-0.135,"8":-0.417,"9":-0.013,"10":0.282,"11":0.238,"12":-0.061,"13":-0.347,"14":0.123,"15":0.424,"16":0.008,"17":0.531,"18":0.68,"19":0.425,"20":0.156,"21":-0.189,"22":0.124,"23":0.202,"24":0.68,"25":0.132,"26":-0.257,"27":0.284,"28":0.1,"29":-0.12,"30":0.006,"31":0.174,"32":-0.071,"33":-0.258,"34":0.434,"35":0.759,"36":0.303,"37":-0.044,"38":0.172,"39":-0.197,"40":0.066,"41":-0.262,"42":-0.113,"43":0.208,"44":0.104,"45":-0.32,"46":-0.317,"47":0.088,"48":0.393,"49":0.123,"50":0.207,"51":-0.46,"52":-0.235,"53":-0.305,"54":0.017,"55":0.494,"56":0.548,"57":-0.279,"58":-0.289,"59":0.103}}];
 const byId = {};
 MELODIES.forEach(m => { byId[m.id] = m; });
 const el = id => document.getElementById(id);
@@ -444,6 +459,7 @@ function finish() {
     ? "Your choices gave every melody the same number of wins, so there is no order to compare."
     : "Rank correlation between your order and the model's: " + (rho >= 0 ? "+" : "") + rho.toFixed(2) +
       " (+1 identical, 0 unrelated, -1 reversed). With only 6 melodies, anything between about -0.8 and +0.8 could happen by chance.";
+  fillAiTable(ids, trials, choices, total);
 
   const body = el("r-rows");
   body.textContent = "";
@@ -459,6 +475,28 @@ function finish() {
   });
 
   el("out").value = resultText();
+}
+
+// One row per AI: the same two comparisons as for Claude Fable 5.2, using that AI's ranking.
+function fillAiTable(ids, trials, choices, total) {
+  const body = el("ai-rows");
+  body.textContent = "";
+  const notes = [];
+  AI_MODELS.forEach(m => {
+    const score = id => m.scores[id];
+    let agree = 0;
+    trials.forEach((t, i) => { const w = choices[i], l = w === t.a ? t.b : t.a; if (score(w) > score(l)) agree++; });
+    const rho = spearman(ids.map(x => total[x]), ids.map(x => score(x)));
+    const cells = [m.name + (m.note ? " *" : ""), Math.round(agree / trials.length * 100) + "%", m.selfMatch + "%",
+                   rho === null ? "n/a" : (rho >= 0 ? "+" : "") + rho.toFixed(2)];
+    const tr = document.createElement("tr");
+    cells.forEach((text, k) => { const td = document.createElement("td"); td.textContent = text; if (k > 0) td.className = "n"; tr.appendChild(td); });
+    body.appendChild(tr);
+    if (m.note) notes.push("* " + m.name + ": " + m.note);
+  });
+  notes.push("Claude Fable 5.2 ran on its default settings; the other four with thinking off or at its lowest setting. " +
+             "A coin would match about 50% of your choices, and with only 6 melodies a rank correlation anywhere between about -0.8 and +0.8 could happen by chance.");
+  el("ai-notes").textContent = notes.join(" ");
 }
 
 function playById(id) {
