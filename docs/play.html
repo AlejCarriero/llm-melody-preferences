@@ -175,6 +175,18 @@ details summary { cursor: pointer; color: var(--muted); }
     </div>
 
     <div class="panel">
+      <h2>People's preferences vs the AIs'</h2>
+      <p class="muted small" id="people-summary">Loading everyone's shared results...</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>AI</th><th>How closely people's ranking matches it</th></tr></thead>
+          <tbody id="people-rows"></tbody>
+        </table>
+      </div>
+      <p class="muted small">Rank correlation over the melodies people have compared so far: +1 same order, 0 unrelated, -1 opposite. "Other people" combines every result shared from either game: each choice, and each melody rated above another, counts as one comparison, ranked the same way as the AIs' choices. If you shared your own results earlier, they are included.</p>
+    </div>
+
+    <div class="panel">
       <h2>Your order against the model's</h2>
       <p class="muted small" id="r-spearman"></p>
       <div class="scroll">
@@ -497,6 +509,59 @@ function fillAiTable(ids, trials, choices, total) {
   notes.push("Claude Fable 5.2 ran on its default settings; the other four with thinking off or at its lowest setting. " +
              "A coin would match about 50% of your choices, and with only 6 melodies a rank correlation anywhere between about -0.8 and +0.8 could happen by chance.");
   el("ai-notes").textContent = notes.join(" ");
+  fillPeople(ids, trials, choices, total);
+}
+
+// Everyone's shared results, combined (docs/people.json, rebuilt by a GitHub workflow).
+// Reading it sends nothing about the visitor.
+function loadPeople() {
+  return fetch("people.json", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).catch(() => null);
+}
+
+function fillPeople(ids, trials, choices, total) {
+  loadPeople().then(p => {
+    const row = document.createElement("tr");
+    let cells;
+    if (!p || !p.people) {
+      cells = ["Other people", "no shared results yet", "", ""];
+    } else {
+      const has = id => p.scores[id] !== undefined;
+      // only choices between melodies that people's ranking puts in a definite order (ties, for
+      // example from equal ratings, say nothing about which one people prefer)
+      const usable = trials.map((t, i) => ({ w: choices[i], l: choices[i] === t.a ? t.b : t.a }))
+        .filter(c => has(c.w) && has(c.l) && p.scores[c.w] !== p.scores[c.l]);
+      const agree = usable.filter(c => p.scores[c.w] > p.scores[c.l]).length;
+      const known = ids.filter(has);
+      const rho = known.length >= 3 ? spearman(known.map(x => total[x]), known.map(x => p.scores[x])) : null;
+      cells = ["Other people (" + p.people + " so far)",
+               usable.length ? Math.round(agree / usable.length * 100) + "% (of " + usable.length + " choices people rank differently)" : "not compared yet",
+               p.selfMatch === null ? "" : p.selfMatch + "%",
+               rho === null ? "n/a" : (rho >= 0 ? "+" : "") + rho.toFixed(2)];
+    }
+    cells.forEach((text, k) => { const td = document.createElement("td"); td.textContent = text; if (k > 0) td.className = "n"; row.appendChild(td); });
+    const body = el("ai-rows");
+    body.insertBefore(row, body.firstChild);
+    fillPeoplePanel(p);
+  });
+}
+
+function fillPeoplePanel(p) {
+  const body = el("people-rows");
+  body.textContent = "";
+  if (!p || !p.people) {
+    el("people-summary").textContent = p ? "No one has shared results yet. Be the first: use the share box below." : "Everyone's results could not be loaded right now.";
+    return;
+  }
+  el("people-summary").textContent = "Based on " + p.people + (p.people === 1 ? " person" : " people") + " (" + p.listen + " from the listening test, " +
+    p.play + " from this game): " + p.comparisons + " comparisons over " + p.melodies + " of the 60 melodies." +
+    (p.people < 5 ? " Very few people so far, so these numbers will move a lot as more people share." : "");
+  p.vsAI.forEach(a => {
+    const tr = document.createElement("tr");
+    [a.name, a.rho === null ? "n/a" : (a.rho >= 0 ? "+" : "") + a.rho.toFixed(2)].forEach((text, k) => {
+      const td = document.createElement("td"); td.textContent = text; if (k > 0) td.className = "n"; tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
 }
 
 function playById(id) {

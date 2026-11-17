@@ -28,6 +28,18 @@ jobs:
         id: save
         run: python3 .github/scripts/save_shared_result.py
 
+      - name: Set up Python for the people summary
+        if: steps.save.outputs.saved == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Rebuild docs/people.json (everyone's combined preferences)
+        if: steps.save.outputs.saved == 'true'
+        run: |
+          pip install numpy
+          python .github/scripts/aggregate_people.py
+
       - name: Commit the file
         if: steps.save.outputs.saved == 'true'
         env:
@@ -36,7 +48,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- "$RESULT_FILE"
+          git add -- "$RESULT_FILE" docs/people.json
           git commit -m "Add shared results from issue #$ISSUE_NUMBER"
           git pull --rebase
           git push

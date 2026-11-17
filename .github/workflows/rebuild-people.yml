@@ -1,0 +1,44 @@
+# Rebuilds docs/people.json (everyone's combined preferences, used by the game pages)
+# whenever human_listening/ changes through a push, for example when a test file is
+# deleted by hand, or when started from the Actions tab. Results saved by the
+# "Save shared results" workflow rebuild it themselves, because commits made by a
+# workflow do not start other workflows.
+name: Rebuild people summary
+
+on:
+  push:
+    branches: [main]
+    paths: ["human_listening/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: save-shared-results
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Rebuild docs/people.json
+        run: |
+          pip install numpy
+          python .github/scripts/aggregate_people.py
+
+      - name: Commit it if it changed
+        run: |
+          if git diff --quiet -- docs/people.json; then echo "people.json unchanged"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/people.json
+          git commit -m "Rebuild people summary after changes to human_listening/"
+          git pull --rebase
+          git push

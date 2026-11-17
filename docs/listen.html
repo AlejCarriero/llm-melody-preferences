@@ -144,6 +144,17 @@ summary { cursor: pointer; color: var(--muted); }
       <p class="muted" id="ai-notes" style="font-size: 14px;"></p>
     </div>
     <div class="panel">
+      <h2>People's preferences vs the AIs'</h2>
+      <p class="muted" id="people-summary" style="font-size: 14px;">Loading everyone's shared results...</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>AI</th><th>How closely people's ranking matches it</th></tr></thead>
+          <tbody id="people-rows"></tbody>
+        </table>
+      </div>
+      <p class="muted" style="font-size: 14px;">Rank correlation over the melodies people have compared so far: +1 same order, 0 unrelated, -1 opposite. "Other people" combines every result shared from either game: each melody rated above another, and each choice in Be the subject, counts as one comparison, ranked the same way as the AIs' choices. If you shared your own results earlier, they are included.</p>
+    </div>
+    <div class="panel">
       <label for="notes">What did they sound like? Anything you noticed.</label>
       <textarea id="notes" placeholder="For example: the top ones sounded like folk tunes; the bottom ones were like an alarm."></textarea>
       <div class="row">
@@ -350,6 +361,53 @@ function fillAiTable() {
   notes.push("Claude Fable 5.2 ran on its default settings; the other four with thinking off or at its lowest setting. " +
              "The short set of 24 was picked from Claude Fable 5.2's ranking (its top, middle and bottom eight).");
   el("ai-notes").textContent = notes.join(" ");
+  fillPeople(ids, average);
+}
+
+// Everyone's shared results, combined (docs/people.json, rebuilt by a GitHub workflow).
+// Reading it sends nothing about the visitor.
+function loadPeople() {
+  return fetch("people.json", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).catch(() => null);
+}
+
+function fillPeople(ids, average) {
+  loadPeople().then(p => {
+    const row = document.createElement("tr");
+    let cells;
+    if (!p || !p.people) {
+      cells = ["Other people", "no shared results yet", "", ""];
+    } else {
+      const known = ids.filter(id => p.scores[id] !== undefined);
+      const byScore = known.slice().sort((x, y) => p.scores[y] - p.scores[x]);
+      const ratingsInOrder = byScore.map(id => session.ratings[id]);
+      const rho = known.length >= 3 ? spearman(known.map(id => session.ratings[id]), known.map(id => p.scores[id])) : null;
+      cells = ["Other people (" + p.people + " so far)", rho === null ? "not compared yet" : (rho >= 0 ? "+" : "") + rho.toFixed(2),
+               known.length >= 16 ? average(ratingsInOrder.slice(0, 8)) : "n/a", known.length >= 16 ? average(ratingsInOrder.slice(-8)) : "n/a"];
+    }
+    cells.forEach((text, k) => { const td = document.createElement("td"); td.textContent = text; if (k > 0) td.className = "n"; row.appendChild(td); });
+    const body = el("ai-rows");
+    body.insertBefore(row, body.firstChild);
+    fillPeoplePanel(p);
+  });
+}
+
+function fillPeoplePanel(p) {
+  const body = el("people-rows");
+  body.textContent = "";
+  if (!p || !p.people) {
+    el("people-summary").textContent = p ? "No one has shared results yet. Be the first: use the share box below." : "Everyone's results could not be loaded right now.";
+    return;
+  }
+  el("people-summary").textContent = "Based on " + p.people + (p.people === 1 ? " person" : " people") + " (" + p.listen + " from this listening test, " +
+    p.play + " from Be the subject): " + p.comparisons + " comparisons over " + p.melodies + " of the 60 melodies." +
+    (p.people < 5 ? " Very few people so far, so these numbers will move a lot as more people share." : "");
+  p.vsAI.forEach(a => {
+    const tr = document.createElement("tr");
+    [a.name, a.rho === null ? "n/a" : (a.rho >= 0 ? "+" : "") + a.rho.toFixed(2)].forEach((text, k) => {
+      const td = document.createElement("td"); td.textContent = text; if (k > 0) td.className = "n"; tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
 }
 
 function resultText() {
